@@ -1,4 +1,7 @@
 ## NOVO MODELO APURACAO CAMPANHAS
+## PERIODO DE REFERENCIA 0522
+## SANDRO JAKOSKA
+
 library(DBI)
 library(tidyverse)
 library(lubridate)
@@ -68,25 +71,151 @@ LIST_INSIGNE_0522 <- inner_join(CP_INSIGNE_0522,BASE_CPF_INSIGNE,by="CLICODIGO")
 
 View(LIST_INSIGNE_0522)
 
-PAG_INSIGNE_PART_0522 <- LIST_INSIGNE_0522 %>% group_by(CLICODIGO) %>% summarize(q=n_distinct(CPF2))
+## RESUMO DE PAGAMENTOS POR CPF
 
 PAG_INSIGNE_0522 <- LIST_INSIGNE_0522 %>% group_by(CPF2,CLICODIGO) %>% 
   summarize(bonus=sum(BONUS)) 
 
+## CONTAGEM DE PARTICIPANTES PARA DIVISAO DE VALORES
+
+PAG_INSIGNE_PART_0522 <- LIST_INSIGNE_0522 %>% group_by(CLICODIGO) %>% summarize(q=n_distinct(CPF2))
+
+##  RESUMO DE PAGAMENTOS POR PARTICIPANTES
 
 PAG_INSIGNE_0522_2 <- inner_join(PAG_INSIGNE_PART_0522,PAG_INSIGNE_0522,by="CLICODIGO") %>% as.data.frame() %>% 
-  mutate(BONUS2=bonus/q) %>% select(CLICODIGO,CPF2,BONUS2) 
+  mutate(BONUS2=bonus/q) %>% select(CLICODIGO,CPF2,BONUS2) %>% mutate(OBS="INSIGNE 05/22")
 
 View(PAG_INSIGNE_0522_2)
 
+## RESUMO DO VALOR FINAL 
 
 PAG_INSIGNE_0522_2 %>% summarize(V=sum(BONUS2)) 
 
+## ============================================================================================
+
+## SQL 849 VITAL
+
+CP_849_0522 <- dbGetQuery(con2,"
+WITH FIS AS (SELECT FISCODIGO FROM TBFIS WHERE FISTPNATOP IN ('V','SR','R')),
+
+CLI AS(SELECT C.CLICODIGO,GCLCODIGO, CLINOMEFANT,SETOR FROM CLIEN C
+       LEFT JOIN (SELECT CLICODIGO,D.ZOCODIGO,ZODESCRICAO SETOR FROM ENDCLI D
+       INNER JOIN ZONA Z ON D.ZOCODIGO=Z.ZOCODIGO WHERE ENDFAT='S')A ON C.CLICODIGO=A.CLICODIGO
+       WHERE C.CLICODIGO=849),
+
+PD AS (SELECT ID_PEDIDO,PEDDTBAIXA,PEDID.CLICODIGO,GCLCODIGO,CLINOMEFANT,SETOR,PEDAUTORIZOU 
+       FROM PEDID 
+       INNER JOIN FIS ON PEDID.FISCODIGO1=FIS.FISCODIGO
+       INNER JOIN CLI ON PEDID.CLICODIGO=CLI.CLICODIGO
+       WHERE PEDDTBAIXA BETWEEN '01.05.2022' AND '31.05.2022'
+      AND PEDSITPED<>'C' AND PEDLCFINANC IN ('S', 'L','N'))
+
+
+SELECT 
+      PDPRD.ID_PEDIDO,
+       PEDDTBAIXA,
+        CLICODIGO,
+         GCLCODIGO,
+          SETOR,
+           PROCODIGO,
+            PDPDESCRICAO,
+             PEDAUTORIZOU,
+              SUM(PDPQTDADE) QTD,
+               SUM(PDPUNITLIQUIDO*PDPQTDADE)VRVENDA,
+                SUM(PDPUNITLIQUIDO*PDPQTDADE)*0.07 BONUS
+                 FROM
+                 PDPRD
+                 INNER JOIN PD ON PDPRD.ID_PEDIDO=PD.ID_PEDIDO
+                 GROUP BY 1,2,3,4,5,6,7,8") 
+
+View(CP_849_0522)
+
+CP_849_0522 %>% summarize(v=sum(VRVENDA))
+
+CP_849_0522 %>% summarize(v=sum(VRVENDA)*0.08)
+
+## LISTA PEDIDOS
+LIST_849_0522 <- CP_849_0522 %>% 
+  mutate(CPF=rep(c("04455447911","06532582913"), length.out=nrow(CP_849_0522)))  
+  
+
+View(LIST_849_0522)
+
+## PAGAMENTOS 
+
+PAG_849_0522 <- LIST_849_0522 %>% group_by(CLICODIGO,CPF) %>% 
+                    summarize(BONUS=round(sum(BONUS)/2,2)) %>% mutate(OBS="VITAL 849 05/22")
+
+
+View(PAG_849_0522)
 
 
 
+### ===========================================================================================
+
+## SQL 157 DOMBOSCO
+
+CP_157_0522 <- dbGetQuery(con2,"
+WITH FIS AS (SELECT FISCODIGO FROM TBFIS WHERE FISTPNATOP IN ('V','SR','R')),
+
+CLI AS(SELECT C.CLICODIGO,GCLCODIGO,CLINOMEFANT,SETOR FROM CLIEN C
+       LEFT JOIN (SELECT CLICODIGO,D.ZOCODIGO,ZODESCRICAO SETOR FROM ENDCLI D
+       INNER JOIN ZONA Z ON D.ZOCODIGO=Z.ZOCODIGO WHERE ENDFAT='S')A ON C.CLICODIGO=A.CLICODIGO
+       WHERE C.CLICODIGO=157),
+
+PD AS (SELECT ID_PEDIDO,PEDDTBAIXA,PEDID.CLICODIGO,GCLCODIGO,CLINOMEFANT,SETOR,PEDAUTORIZOU 
+       FROM PEDID 
+       INNER JOIN FIS ON PEDID.FISCODIGO1=FIS.FISCODIGO
+       INNER JOIN CLI ON PEDID.CLICODIGO=CLI.CLICODIGO
+       WHERE PEDDTBAIXA BETWEEN  '01.05.2022' AND '31.05.2022'
+      AND PEDSITPED<>'C' AND PEDLCFINANC IN ('S', 'L','N'))
+
+
+SELECT 
+      PDPRD.ID_PEDIDO,
+       PEDDTBAIXA,
+        CLICODIGO,
+         GCLCODIGO,
+          SETOR,
+           PROCODIGO,
+            PDPDESCRICAO,
+             PEDAUTORIZOU,
+              SUM(PDPQTDADE) QTD,
+               SUM(PDPUNITLIQUIDO*PDPQTDADE)VRVENDA,
+                SUM(PDPUNITLIQUIDO*PDPQTDADE)*0.1 BONUS
+                 FROM
+                 PDPRD
+                 INNER JOIN PD ON PDPRD.ID_PEDIDO=PD.ID_PEDIDO
+                 GROUP BY 1,2,3,4,5,6,7,8") 
+
+View(CP_157_0522)
+
+CP_157_0522 %>% summarize(v=sum(VRVENDA))
+
+CP_157_0522 %>% summarize(v=sum(VRVENDA)*0.1)
+
+
+## lista pedidos 
+LIST_157_0522 <- CP_157_0522 %>% 
+  mutate(CPF=rep(c("03188282940"), length.out=nrow(CP_157_0522))) %>% mutate(OBS="DOM BOSCO 157 05/22")
+
+
+View(LIST_157_0522)
+
+LIST_157_0522 %>% summarize(v=sum(BONUS))
+
+
+LIST_157_0522 %>% group_by(CLICODIGO,CPF) %>% summarize(BONUS=round(sum(BONUS),2)) %>% 
+  mutate(DATA=floor_date(Sys.Date(),"month") %m-% months(1)) 
+
+
+## Pagamento
+
+PAG_157_0522 <- LIST_157_0522 %>% group_by(CLICODIGO,CPF) %>% summarize(BONUS=round(sum(BONUS),2)) %>% 
+                  mutate(OBS="DOM BOSCO 157 05/22")  
+
+View(PAG_157_0522)
 
 
 
-
-
+### ===========================================================================================
