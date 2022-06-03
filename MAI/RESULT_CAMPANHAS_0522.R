@@ -1116,18 +1116,18 @@ View(LIST_1225_0522)
 
 ### pagamentos
 
-PAG_G121_0522 <- LIST_1225_05222 %>% group_by(CPF2,CLICODIGO,GCLCODIGO) %>% 
+PAG_1225_0522 <- LIST_1225_05222 %>% group_by(CPF2,CLICODIGO,GCLCODIGO) %>% 
   summarize(BONUS=round(sum(BONUS),2)) %>% 
   rename(.,"GRUPO"="GCLCODIGO") %>% 
   rename(.,"CPF"="CPF2") %>% 
   mutate(OBS=OBS_1225) %>% 
   .[,c(1,4,5,2,3)] %>% as.data.frame()
 
-View(PAG_G121_1225)
+View(PAG_1225_0522)
 
 # Calc Bonus
 
-PAG_G121_0522 %>% summarize(v=sum(BONUS))
+PAG_1225_0522 %>% summarize(v=sum(BONUS))
 
 
 ## =============================================================================================================         
