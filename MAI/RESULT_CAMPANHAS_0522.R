@@ -9,6 +9,12 @@ library(googlesheets4)
 con2 <- dbConnect(odbc::odbc(), "reproreplica")
 
 
+## GET CPF
+
+BASE_CPF <- read_sheet("1ShpVwae6DVAqYW3afQli7XggL_7cJrDiWeKw2luKpC0",
+                       sheet = 'DADOS') %>% select(CLICODIGO,CPF) 
+
+
 ## G139 SCHROEDER
 # Rebate 7% para vendedoras e 3% para montador
 
@@ -24,9 +30,11 @@ PD AS (SELECT ID_PEDIDO,PEDDTBAIXA,PEDID.CLICODIGO,CLINOMEFANT,SETOR,GCLCODIGO,P
        FROM PEDID 
        INNER JOIN FIS ON PEDID.FISCODIGO1=FIS.FISCODIGO
        INNER JOIN CLI ON PEDID.CLICODIGO=CLI.CLICODIGO
-       WHERE PEDDTBAIXA BETWEEN
-       '01.05.2022' AND '31.05.2022'
-      AND PEDSITPED<>'C' AND PEDLCFINANC IN ('S', 'L','N'))
+       WHERE
+       PEDDTBAIXA
+       BETWEEN DATEADD(MONTH, -1, CURRENT_DATE - EXTRACT(DAY FROM CURRENT_DATE) + 1)
+       AND CURRENT_DATE - EXTRACT(DAY FROM CURRENT_DATE)
+       AND PEDSITPED<>'C' AND PEDLCFINANC IN ('S', 'L','N'))
 
 
 SELECT 
@@ -192,8 +200,11 @@ PD AS (SELECT ID_PEDIDO,PEDDTBAIXA,PEDID.CLICODIGO,GCLCODIGO,CLINOMEFANT,SETOR,P
        FROM PEDID 
        INNER JOIN FIS ON PEDID.FISCODIGO1=FIS.FISCODIGO
        INNER JOIN CLI ON PEDID.CLICODIGO=CLI.CLICODIGO
-       WHERE PEDDTBAIXA BETWEEN  '01.05.2022' AND '31.05.2022'
-      AND PEDSITPED<>'C' AND PEDLCFINANC IN ('S', 'L','N'))
+       WHERE
+       PEDDTBAIXA
+       BETWEEN DATEADD(MONTH, -1, CURRENT_DATE - EXTRACT(DAY FROM CURRENT_DATE) + 1)
+       AND CURRENT_DATE - EXTRACT(DAY FROM CURRENT_DATE)
+       AND PEDSITPED<>'C' AND PEDLCFINANC IN ('S', 'L','N'))
 
 
 SELECT 
@@ -211,7 +222,10 @@ SELECT
                  FROM
                  PDPRD
                  INNER JOIN PD ON PDPRD.ID_PEDIDO=PD.ID_PEDIDO
-                 GROUP BY 1,2,3,4,5,6,7,8") 
+                 GROUP BY 1,2,3,4,5,6,7,8") %>% 
+  mutate(CPF=sub("\\D+", '',PEDAUTORIZOU)) %>% 
+  mutate(CPF=sub("\\.", '',CPF)) %>% 
+  mutate(CPF=sub("\\-", '',CPF))
 
 View(CP_157_0522)
 
@@ -220,27 +234,29 @@ CP_157_0522 %>% summarize(v=sum(VRVENDA))
 CP_157_0522 %>% summarize(v=sum(VRVENDA)*0.1)
 
 
-## lista pedidos 
-LIST_157_0522 <- CP_157_0522 %>% 
-  mutate(CPF=rep(c("03188282940"), length.out=nrow(CP_157_0522))) %>% 
-  mutate(OBS=paste0("DOM BOSCO ","G",CP_157_0522  %>% distinct(CLICODIGO)," ",format(floor_date(Sys.Date(),"month"),"%m/%y"))) 
-  
 
+OBS_157 <- paste0("DOM BOSCO ","G",CP_157_0522  %>% 
+                    distinct(CLICODIGO)," ",format(floor_date(Sys.Date(),"month"),"%m/%y"))
+
+
+## JOIN CPF
+
+LIST_157_0522 <- inner_join(CP_157_0522,BASE_CPF,by="CLICODIGO") %>% 
+  rename(CPF1=CPF.x) %>% rename(CPF2=CPF.y) %>% 
+  .[,-12] %>% 
+  rename(.,"CPF"="CPF2") %>% 
+  mutate(OBS=OBS_157)
 
 View(LIST_157_0522)
 
 LIST_157_0522 %>% summarize(v=sum(BONUS))
 
 
-LIST_157_0522 %>% group_by(CLICODIGO,CPF) %>% summarize(BONUS=round(sum(BONUS),2)) %>% 
-  mutate(DATA=floor_date(Sys.Date(),"month") %m-% months(1)) 
-
-
 ## Pagamento
 
 PAG_157_0522 <- LIST_157_0522 %>% group_by(CPF,CLICODIGO,GCLCODIGO) %>% summarize(BONUS=round(sum(BONUS),2)) %>% 
-  mutate(OBS=paste0("DOM BOSCO ","G",CP_157_0522  %>% distinct(CLICODIGO)," ",format(floor_date(Sys.Date(),"month"),"%m/%y"))) %>% 
-  rename(.,"GRUPO"="GCLCODIGO") %>% 
+  mutate(OBS=OBS_157) %>% 
+     rename(.,"GRUPO"="GCLCODIGO") %>% 
   .[,c(1,4,5,2,3)] %>% as.data.frame()
 
 View(PAG_157_0522)
@@ -264,7 +280,10 @@ PD AS (SELECT ID_PEDIDO,PEDDTBAIXA,PEDID.CLICODIGO,GCLCODIGO,CLINOMEFANT,SETOR,P
        INNER JOIN FIS ON PEDID.FISCODIGO1=FIS.FISCODIGO
        INNER JOIN CLI ON PEDID.CLICODIGO=CLI.CLICODIGO
        WHERE 
-       PEDDTBAIXA BETWEEN '01.05.2022' AND '31.05.2022' AND PEDSITPED <>'C'),
+       PEDDTBAIXA
+       BETWEEN DATEADD(MONTH, -1, CURRENT_DATE - EXTRACT(DAY FROM CURRENT_DATE) + 1)
+       AND CURRENT_DATE - EXTRACT(DAY FROM CURRENT_DATE)
+       AND PEDSITPED <>'C'),
 
 PROD1 AS (SELECT PROCODIGO FROM PRODU WHERE MARCODIGO=159) ,-- AVANCE
 
@@ -306,7 +325,10 @@ FROM
 PDPRD
 INNER JOIN PD ON PDPRD.ID_PEDIDO=PD.ID_PEDIDO
 INNER JOIN PROD2 ON PDPRD.PROCODIGO=PROD2.PROCODIGO
-GROUP BY 1,2,3,4,5,6,7,8 HAVING SUM(PDPQTDADE)>=2") 
+GROUP BY 1,2,3,4,5,6,7,8 HAVING SUM(PDPQTDADE)>=2") %>% 
+  mutate(CPF=sub("\\D+", '',PEDAUTORIZOU)) %>% 
+  mutate(CPF=sub("\\.", '',CPF)) %>% 
+  mutate(CPF=sub("\\-", '',CPF))
 
 
 View(CP_1419_0522)
@@ -314,12 +336,18 @@ View(CP_1419_0522)
 
 CP_1419_0522 %>% summarize(v=sum(BONUS))
 
-### lista pedidos  
+
+OBS_1419 <- paste0("LOOK ","G",CP_1419_0522  %>% 
+                    distinct(CLICODIGO)," ",format(floor_date(Sys.Date(),"month"),"%m/%y"))
 
 
-LIST_1419_0522<- CP_1419_0522 %>% mutate(CPF=rep(c("47751118091"), length.out=nrow(CP_1419_0522))) %>% 
-  mutate(OBS=paste0("LOOK ","G",CP_1419_0522  %>% distinct(CLICODIGO)," ",format(floor_date(Sys.Date(),"month"),"%m/%y"))) %>% 
-  .[,c(1,4,5,2,3)] %>% as.data.frame()
+## JOIN CPF
+
+LIST_1419_0522 <- inner_join(CP_1419_0522,BASE_CPF,by="CLICODIGO") %>% 
+  rename(CPF1=CPF.x) %>% rename(CPF2=CPF.y) %>% 
+  .[,-12] %>% 
+  rename(.,"CPF"="CPF2") %>% 
+  mutate(OBS=OBS_1419)
 
 View(LIST_1419_0522)
 
@@ -328,9 +356,9 @@ View(LIST_1419_0522)
 
 PAG_1419_0522 <- LIST_1419_0522 %>%  group_by(CPF,CLICODIGO,GCLCODIGO) %>% 
                              summarize(BONUS=round(sum(BONUS),2)) %>%
-  mutate(OBS=paste0("LOOK ","G",CP_1419_0522  %>% distinct(CLICODIGO)," ",format(floor_date(Sys.Date(),"month"),"%m/%y"))) %>% 
-  rename(.,"GRUPO"="GCLCODIGO") %>% 
-  .[,c(1,4,5,2,3)] %>% as.data.frame()
+                                mutate(OBS=OBS_1419) %>% 
+                                  rename(.,"GRUPO"="GCLCODIGO") %>% 
+                                    .[,c(1,4,5,2,3)] %>% as.data.frame()
 
 
 View(PAG_1419_0522)
@@ -351,7 +379,9 @@ PD AS (SELECT ID_PEDIDO,PEDDTBAIXA,GCLCODIGO,SETOR,PEDID.CLICODIGO,CLINOMEFANT,P
 FROM PEDID 
 INNER JOIN FIS ON PEDID.FISCODIGO1=FIS.FISCODIGO
 INNER JOIN CLI ON PEDID.CLICODIGO=CLI.CLICODIGO
-WHERE PEDDTBAIXA BETWEEN '01.05.2022' AND '31.05.2022' AND PEDSITPED <>'C'),
+WHERE PEDDTBAIXA
+PEDDTBAIXA BETWEEN DATEADD(MONTH, -1, CURRENT_DATE - EXTRACT(DAY FROM CURRENT_DATE) + 1)
+AND PEDSITPED <>'C'),
 
 PROD1 AS (SELECT PROCODIGO FROM PRODU WHERE MARCODIGO=159), -- AVANCE
 
@@ -441,13 +471,17 @@ View(CP_305_0522)
 
 CP_305_0522 %>% summarize(v=sum(BONUS))
 
+OBS_305 <- paste0("GARUVA ","G",CP_305_0522 %>% 
+                    distinct(CLICODIGO)," ",format(floor_date(Sys.Date(),"month"),"%m/%y"))
 
-### lista pedidos
 
-LIST_305_0522 <- CP_305_0522 %>% 
-  mutate(CPF=rep(c("66655072972"), length.out=nrow(CP_305_0522))) %>% 
-  mutate(OBS=paste0("GARUVA ","G",CP_305_0522 %>% distinct(CLICODIGO)," ",format(floor_date(Sys.Date(),"month"),"%m/%y"))) 
-  
+## JOIN CPF
+
+LIST_305_0522 <- inner_join(CP_305_0522,BASE_CPF,by="CLICODIGO") %>% 
+  rename(CPF1=CPF.x) %>% rename(CPF2=CPF.y) %>% 
+  .[,-12] %>% 
+  rename(.,"CPF"="CPF2") %>% 
+  mutate(OBS=OBS_305)
 
 View(LIST_305_0522)
 
@@ -487,7 +521,8 @@ PD AS (SELECT ID_PEDIDO,PEDDTBAIXA,PEDID.CLICODIGO,GCLCODIGO,SETOR,CLINOMEFANT,P
 FROM PEDID 
 INNER JOIN FIS ON PEDID.FISCODIGO1=FIS.FISCODIGO
 INNER JOIN CLI ON PEDID.CLICODIGO=CLI.CLICODIGO
-WHERE PEDDTBAIXA BETWEEN '01.05.2022' AND '31.05.2022' AND PEDSITPED <>'C'),
+WHERE PEDDTBAIXA BETWEEN DATEADD(MONTH, -1, CURRENT_DATE - EXTRACT(DAY FROM CURRENT_DATE) + 1)
+AND PEDSITPED <>'C'),
 
 PROD1 AS (SELECT PROCODIGO,PRODESCRICAO FROM PRODU WHERE MARCODIGO=57 AND (PRODESCRICAO LIKE '%X TRACK%' OR PRODESCRICAO LIKE '%4D%' OR PRODESCRICAO LIKE '%XCLUSIVE%')),
 
@@ -601,18 +636,17 @@ CP_G121_0522 %>% summarize(v=sum(VRVENDA))
 
 CP_G121_0522 %>% summarize(v=sum(BONUS))
 
-## GET CPF
+OBS_G121 <- paste0("RINALDI ","G",CP_G121_0522 %>% 
+                     distinct(GCLCODIGO)," ",format(floor_date(Sys.Date(),"month"),"%m/%y")) 
 
-BASE_CPF <- read_sheet("1ShpVwae6DVAqYW3afQli7XggL_7cJrDiWeKw2luKpC0",
-                       sheet = 'DADOS') %>% select(CLICODIGO,CPF) 
 
 ## JOIN CPF
 
 LIST_G121_0522 <- inner_join(CP_G121_0522,BASE_CPF,by="CLICODIGO") %>% 
-  rename(CPF1=CPF.x) %>% rename(CPF2=CPF.y) %>% 
-  mutate(OBS=paste0("RINALDI ","G",CP_G121_0522 %>% distinct(GCLCODIGO)," ",format(floor_date(Sys.Date(),"month"),"%m/%y"))) %>% 
-  .[,-12] %>% 
-  rename(.,"CPF"="CPF2")
+                    rename(CPF1=CPF.x) %>% rename(CPF2=CPF.y) %>% 
+                      .[,-12] %>% 
+                          rename(.,"CPF"="CPF2") %>% 
+                            mutate(OBS=OBS_G121)
   
 View(LIST_G121_0522)
 
@@ -620,17 +654,273 @@ View(LIST_G121_0522)
 ### pagamentos
 
 PAG_G121_0522 <- LIST_G121_0522 %>% group_by(CPF2,CLICODIGO,GCLCODIGO) %>% 
-  summarize(BONUS=round(sum(BONUS),2)) %>% 
-  rename(.,"GRUPO"="GCLCODIGO") %>% 
-  rename(.,"CPF"="CPF2") %>% 
-  mutate(OBS=paste0("RINALDI ","G",CP_G121_0522 %>% distinct(GCLCODIGO)," ",format(floor_date(Sys.Date(),"month"),"%m/%y"))) %>%
-  .[,c(1,4,5,2,3)] %>% as.data.frame()
+                    summarize(BONUS=round(sum(BONUS),2)) %>% 
+                      rename(.,"GRUPO"="GCLCODIGO") %>% 
+                       rename(.,"CPF"="CPF2") %>% 
+                         mutate(OBS=OBS_G121) %>% 
+                          .[,c(1,4,5,2,3)] %>% as.data.frame()
                         
-View(PAG_G121_0522)
+                              View(PAG_G121_0522)
 
 # Calc Bonus
 
 PAG_G121_0522 %>% summarize(v=sum(BONUS))
+
+
+## =============================================================================================================         
+
+# SQL 206 RH
+
+CP_206_0522 <- dbGetQuery(con2,"
+WITH FIS AS (SELECT FISCODIGO FROM TBFIS WHERE FISTPNATOP IN ('V','SR','R')),
+
+CLI AS(SELECT C.CLICODIGO,CLINOMEFANT,GCLCODIGO,SETOR FROM CLIEN C
+       LEFT JOIN (SELECT CLICODIGO,D.ZOCODIGO,ZODESCRICAO SETOR FROM ENDCLI D
+       INNER JOIN ZONA Z ON D.ZOCODIGO=Z.ZOCODIGO WHERE ENDFAT='S')A ON 
+       C.CLICODIGO=A.CLICODIGO WHERE C.CLICODIGO=206),
+
+         PD AS (SELECT ID_PEDIDO,PEDDTBAIXA,PEDID.CLICODIGO,GCLCODIGO,SETOR,CLINOMEFANT,PEDAUTORIZOU  
+           FROM PEDID 
+             INNER JOIN FIS ON PEDID.FISCODIGO1=FIS.FISCODIGO
+               INNER JOIN CLI ON PEDID.CLICODIGO=CLI.CLICODIGO
+                 WHERE
+                    PEDDTBAIXA
+                      BETWEEN DATEADD(MONTH, -1, CURRENT_DATE - EXTRACT(DAY FROM CURRENT_DATE) + 1)
+                        AND CURRENT_DATE - EXTRACT(DAY FROM CURRENT_DATE)
+                          AND PEDSITPED <>'C'),
+
+PROD1 AS (SELECT PROCODIGO,PRODESCRICAO FROM PRODU WHERE MARCODIGO=57 AND PRODESCRICAO LIKE '%X DESIGN%'),
+
+PROD2 AS (SELECT PROCODIGO,PRODESCRICAO FROM PRODU WHERE MARCODIGO=57 AND PRODESCRICAO LIKE '%E DESIGN%'),
+
+PROD3 AS (SELECT PROCODIGO,PRODESCRICAO FROM PRODU WHERE MARCODIGO=57 AND (PRODESCRICAO LIKE '%COMFORT%' OR PRODESCRICAO LIKE '%LIBERTY%') AND LEFT(PROCODIGO,2)='LD'),
+ 
+PED_PROMO_PAP AS (SELECT P.ID_PEDIDO ID_PEDIDO_PROMO FROM PDPRD P
+ INNER JOIN PD ON P.ID_PEDIDO=PD.ID_PEDIDO
+   WHERE PROCODIGO='PAP'),
+
+PED_PROMO_PLUGIN AS (SELECT ID_PEDIDPROMOCAO ID_PEDIDO_PROMO FROM PEDIDPROMO P
+   INNER JOIN PD ON P.ID_PEDIDPROMOCAO=PD.ID_PEDIDO),
+
+PED_PROMO_UNION AS (SELECT ID_PEDIDO_PROMO FROM PED_PROMO_PAP UNION
+SELECT ID_PEDIDO_PROMO FROM PED_PROMO_PLUGIN)
+
+SELECT 
+PDPRD.ID_PEDIDO,
+  PEDDTBAIXA,
+   CLICODIGO,
+    GCLCODIGO,
+     SETOR,
+       PROD1.PROCODIGO,
+        PDPDESCRICAO,
+        PEDAUTORIZOU,
+          SUM(PDPQTDADE)QTD,
+           SUM(PDPUNITLIQUIDO*PDPQTDADE)VRVENDA,
+            CAST(40 AS INTEGER) BONUS
+FROM
+PDPRD
+INNER JOIN PD ON PDPRD.ID_PEDIDO=PD.ID_PEDIDO
+INNER JOIN PROD1 ON PDPRD.PROCODIGO=PROD1.PROCODIGO
+LEFT OUTER JOIN PED_PROMO_UNION ON PDPRD.ID_PEDIDO=PED_PROMO_UNION.ID_PEDIDO_PROMO
+WHERE PED_PROMO_UNION.ID_PEDIDO_PROMO IS NULL
+GROUP BY 1,2,3,4,5,6,7,8 HAVING SUM(PDPQTDADE)>=2 UNION
+
+SELECT
+PDPRD.ID_PEDIDO,
+  PEDDTBAIXA,
+   CLICODIGO,
+    GCLCODIGO,
+     SETOR,
+       PROD2.PROCODIGO,
+        PDPDESCRICAO,
+        PEDAUTORIZOU,
+          SUM(PDPQTDADE)QTD,
+           SUM(PDPUNITLIQUIDO*PDPQTDADE)VRVENDA,
+            CAST(40 AS INTEGER) BONUS
+FROM
+PDPRD
+INNER JOIN PD ON PDPRD.ID_PEDIDO=PD.ID_PEDIDO
+INNER JOIN PROD2 ON PDPRD.PROCODIGO=PROD2.PROCODIGO
+LEFT OUTER JOIN PED_PROMO_UNION ON PDPRD.ID_PEDIDO=PED_PROMO_UNION.ID_PEDIDO_PROMO
+WHERE PED_PROMO_UNION.ID_PEDIDO_PROMO IS NULL
+GROUP BY 1,2,3,4,5,6,7,8 HAVING SUM(PDPQTDADE)>=2 UNION
+
+SELECT 
+PDPRD.ID_PEDIDO,
+  PEDDTBAIXA,
+   CLICODIGO,
+    GCLCODIGO,
+     SETOR,
+      PROD3.PROCODIGO,
+        PDPDESCRICAO,
+        PEDAUTORIZOU,
+          SUM(PDPQTDADE)QTD,
+           SUM(PDPUNITLIQUIDO*PDPQTDADE)VRVENDA,
+            CAST(20 AS INTEGER) BONUS
+FROM
+PDPRD
+INNER JOIN PD ON PDPRD.ID_PEDIDO=PD.ID_PEDIDO
+INNER JOIN PROD3 ON PDPRD.PROCODIGO=PROD3.PROCODIGO
+LEFT OUTER JOIN PED_PROMO_UNION ON PDPRD.ID_PEDIDO=PED_PROMO_UNION.ID_PEDIDO_PROMO
+WHERE PED_PROMO_UNION.ID_PEDIDO_PROMO IS NULL
+GROUP BY 1,2,3,4,5,6,7,8 HAVING SUM(PDPQTDADE)>=2 
+                      
+ ") %>%
+  mutate(CPF=sub("\\D+", '',PEDAUTORIZOU)) %>% 
+  mutate(CPF=sub("\\.", '',CPF)) %>% 
+  mutate(CPF=sub("\\-", '',CPF)) %>% 
+  mutate(CPF=sub("\\,", '',CPF)) 
+
+View(CP_206_0522)
+
+CP_206_0522 %>% summarize(v=sum(VRVENDA))
+
+CP_206_0522 %>% summarize(v=sum(BONUS))
+
+
+OBS_206 <-  paste0("OTICA RH ",CP_206_0522 %>% distinct(CLICODIGO)," ",format(floor_date(Sys.Date(),"month"),"%m/%y")) 
+
+## JOIN CPF
+
+LIST_206_0522 <- inner_join(CP_206_0522,BASE_CPF,by="CLICODIGO") %>% 
+  rename(CPF1=CPF.x) %>% rename(CPF2=CPF.y) %>% 
+  .[,-12] %>% 
+  rename(.,"CPF"="CPF2") %>% 
+  mutate(OBS=OBS_206)
+
+
+ View(LIST_206_0522)
+  
+  
+### pagamentos
+
+PAG_206_0422 <- LIST_206_0522 %>% group_by(CPF,CLICODIGO,GCLCODIGO) %>% 
+                      summarize(BONUS=round(sum(BONUS),2)) %>% 
+  rename(.,"GRUPO"="GCLCODIGO") %>% 
+  mutate(OBS=OBS_206) %>% 
+  .[,c(1,4,5,2,3)] %>% as.data.frame()
+
+                                                                  
+
+View(PAG_206_0422)
+
+
+## ====================================================================================
+
+### SQL 213 OTICA LINO
+
+CP_213_0522 <- dbGetQuery(con2,"
+WITH FIS AS (SELECT FISCODIGO FROM TBFIS WHERE FISTPNATOP IN ('V','SR','R')),
+CLI  AS(SELECT c.CLICODIGO,GCLCODIGO,CLINOMEFANT,SETOR FROM CLIEN C
+       LEFT JOIN (SELECT CLICODIGO,D.ZOCODIGO,ZODESCRICAO SETOR FROM ENDCLI D
+       INNER JOIN ZONA Z ON D.ZOCODIGO=Z.ZOCODIGO WHERE ENDFAT='S')A ON C.CLICODIGO=A.CLICODIGO
+       WHERE C.CLICODIGO=213),
+
+PD AS (SELECT ID_PEDIDO,PEDDTBAIXA,PEDID.CLICODIGO,GCLCODIGO,CLINOMEFANT,SETOR,PEDAUTORIZOU 
+       FROM PEDID 
+       INNER JOIN FIS ON PEDID.FISCODIGO1=FIS.FISCODIGO
+       INNER JOIN CLI ON PEDID.CLICODIGO=CLI.CLICODIGO
+       WHERE 
+       PEDDTBAIXA
+       BETWEEN DATEADD(MONTH, -1, CURRENT_DATE - EXTRACT(DAY FROM CURRENT_DATE) + 1)
+                        AND CURRENT_DATE - EXTRACT(DAY FROM CURRENT_DATE) AND PEDSITPED <>'C'),
+
+PROD1 AS (SELECT PROCODIGO FROM PRODU WHERE MARCODIGO=128 AND PRODESCRICAO NOT LIKE '%FOTOSSENSIVEL%'), -- UZ
+
+PROD2 AS (SELECT PROCODIGO FROM PRODU WHERE MARCODIGO=128 AND PRODESCRICAO LIKE '%FOTOSSENSIVEL%' ), -- UZ PHOTO
+
+PROD3 AS (SELECT PROCODIGO FROM PRODU WHERE PRODESCRICAO LIKE '%ARTLENS%')-- ARTLENS
+
+SELECT 
+      PDPRD.ID_PEDIDO,
+       PEDDTBAIXA,
+        CLICODIGO,
+         GCLCODIGO, 
+          SETOR,
+           PDPRD.PROCODIGO,
+            PDPDESCRICAO,
+             PEDAUTORIZOU,
+              SUM(PDPQTDADE)QTD,
+               SUM(PDPUNITLIQUIDO*PDPQTDADE)VRVENDA,
+                SUM(PDPQTDADE)/2*20 BONUS
+               
+FROM
+PDPRD
+INNER JOIN PD ON PDPRD.ID_PEDIDO=PD.ID_PEDIDO
+INNER JOIN PROD1 ON PDPRD.PROCODIGO=PROD1.PROCODIGO
+GROUP BY 1,2,3,4,5,6,7,8 HAVING SUM(PDPQTDADE)>=2 UNION
+
+SELECT 
+      PDPRD.ID_PEDIDO,
+       PEDDTBAIXA,
+        CLICODIGO,
+         GCLCODIGO,
+          SETOR,
+           PDPRD.PROCODIGO,
+            PDPDESCRICAO,
+             PEDAUTORIZOU,
+              SUM(PDPQTDADE)QTD,
+               SUM(PDPUNITLIQUIDO*PDPQTDADE)VRVENDA,
+                SUM(PDPQTDADE)/2*30 BONUS
+               
+FROM
+PDPRD
+INNER JOIN PD ON PDPRD.ID_PEDIDO=PD.ID_PEDIDO
+INNER JOIN PROD2 ON PDPRD.PROCODIGO=PROD2.PROCODIGO
+GROUP BY 1,2,3,4,5,6,7,8 HAVING SUM(PDPQTDADE)>=2 UNION
+
+SELECT 
+      PDPRD.ID_PEDIDO,
+       PEDDTBAIXA,
+        CLICODIGO,
+         GCLCODIGO,
+          SETOR,
+           PROD3.PROCODIGO,
+            (SELECT PRODESCRICAO FROM PRODU WHERE PROCODIGO=PROD3.PROCODIGO),
+              PEDAUTORIZOU,
+                SUM(PDPQTDADE)QTD,
+                 SUM(PDPUNITLIQUIDO*PDPQTDADE)VRVENDA,
+                  SUM(PDPQTDADE)/2*20 BONUS
+FROM
+PDPRD
+INNER JOIN PD ON PDPRD.ID_PEDIDO=PD.ID_PEDIDO
+INNER JOIN PROD3 ON PDPRD.PROCODIGO=PROD3.PROCODIGO
+GROUP BY 1,2,3,4,5,6,7,8 HAVING SUM(PDPQTDADE)>=2") %>% 
+  mutate(CPF=sub("\\D+", '',PEDAUTORIZOU)) 
+
+
+View(CP_213_0522)
+
+CP_213_0522 %>% summarize(v=sum(BONUS))
+
+## OBS
+
+OBS_213 <- paste0("LINO ",CP_213_0522 %>% 
+                    distinct(CLICODIGO)," ",format(floor_date(Sys.Date(),"month"),"%m/%y"))
+
+## JOIN CPF AND LIST
+
+LIST_213_0522 <- inner_join(CP_213_0522,BASE_CPF,by="CLICODIGO") %>% 
+  rename(CPF1=CPF.x) %>% rename(CPF2=CPF.y) %>% 
+  mutate(OBS=OBS_213) %>% 
+  .[,-12] %>% 
+  rename(.,"CPF"="CPF2") 
+
+View(LIST_213_0522) %>% distinct(.,ID_PEDIDO,.keep_all = TRUE)
+
+
+PAG_213_0522<-  LIST_213_0522 %>% group_by(CLICODIGO,GCLCODIGO,CPF) %>% 
+                           summarize(BONUS=sum(BONUS)/(LIST_213_0522  %>% distinct(CPF) %>% lengths())) %>% 
+                            mutate(OBS=OBS_213) %>% 
+                               .[,c(3,4,5,1,2)] %>% 
+                                  rename(.,"GRUPO"="GCLCODIGO")
+
+                               
+View(PAG_213_0522)
+
+
+
+### ===========================================================================================
 
 
 ## =============================================================================================================         
@@ -643,7 +933,9 @@ PAG_ALL_0522 <-  rbind(
   PAG_G121_0522,
   PAG_157_0522,
   PAG_305_0522,
-  PAG_1419_0522
+  PAG_1419_0522,
+  PAG_206_0422,
+  PAG_213_0522
 ) 
 
 View(PAG_ALL_0522)
@@ -663,7 +955,9 @@ LIST_ALL_0522 <-  rbind(
   LIST_157_0522,
   LIST_1419_0522,
   LIST_305_0522,
-  LIST_G121_0522
+  LIST_G121_0522,
+  LIST_206_0522,
+  LIST_213_0522
 ) 
 
 View(LIST_ALL_0522)
