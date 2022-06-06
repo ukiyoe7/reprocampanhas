@@ -2,6 +2,7 @@
 ## PERIODO DE REFERENCIA 0522
 ## SANDRO JAKOSKA
 
+## =======================================================================================================  
 
 ## LIBRARIES
 
@@ -16,13 +17,14 @@ library(googlesheets4)
 
 con2 <- dbConnect(odbc::odbc(), "reproreplica")
 
+## ======================================================================================================= 
+
 ## GET CPF
 
 BASE_CPF <- read_sheet("1ShpVwae6DVAqYW3afQli7XggL_7cJrDiWeKw2luKpC0",
                        sheet = 'DADOS') %>% select(CLICODIGO,CPF) 
 
 ## =======================================================================================================  
-
 
 ## SQL 
 
@@ -81,11 +83,13 @@ PD.ID_PEDIDO,
 
 OBS_SIG <- paste0("INSIGNE"," ",format(floor_date(Sys.Date(),"month"),"%m/%y"))
 
+## =======================================================================================================  
 
 ##REMOVE DUPLICATES
 
 CP_INSIGNE_0522_2 <- CP_INSIGNE_0522 %>% filter(CLICODIGO!=213)
 
+## =======================================================================================================  
 
 ## INTERSECTION
 
@@ -94,30 +98,32 @@ LIST_INSIGNE_0522 <- left_join(CP_INSIGNE_0522_2,BASE_CPF,by="CLICODIGO") %>%
    mutate(CPF3=ifelse(CPF2=='NULL',CPF,CPF2)) %>% 
     mutate(OBS=OBS_SIG) 
 
+## =======================================================================================================  
 
 ## PAY
 
 PAG_INSIGNE_0522 <-  LIST_INSIGNE_0522 %>% filter(nchar(CPF3)==11) %>% group_by(CPF3) %>% 
   summarize(BONUS=sum(BONUS)) %>% 
-  mutate(OBS=OBS_SIG) 
+  mutate(OBS=OBS_SIG) %>%  rename(CPF=CPF3)
 
 
 ## =======================================================================================================  
 
-## FILTRA CLIENTES COM PEDIDOS DUPLICADOS
+## FILTER DUPLICATED
 
 CP_INSIGNE_0522_213 <- CP_INSIGNE_0522 %>% filter(CLICODIGO==213)
 
-## INTERSECTA RESULTADO COM BASE DE CPF
+## INTERSECT
 
 LIST_INSIGNE_0522_213 <- left_join(CP_INSIGNE_0522_213,BASE_CPF,by="CLICODIGO") %>%
   rename(CPF=CPF.x) %>% rename(CPF2=CPF.y) %>% 
   mutate(OBS=OBS_SIG) %>% mutate(CPF3=ifelse(CPF2=='NULL',CPF,CPF2)) 
 
+## PAY
 
 PAG_INSIGNE_0522_213 <-  LIST_INSIGNE_0522_213 %>% group_by(CPF3) %>% 
-  summarize(BONUS=sum(BONUS)/(LIST_INSIGNE_0522_213 %>% distinct(CPF2) %>% lengths())) %>% 
-  mutate(OBS=OBS_SIG) 
+  summarize(BONUS=sum(BONUS)/(LIST_INSIGNE_0522_213 %>% distinct(CPF3) %>% lengths())) %>% 
+  mutate(OBS=OBS_SIG) %>% rename(CPF=CPF3)
 
 ## ======================================================================================================= 
 
@@ -128,9 +134,6 @@ PAG_INSIGNE_0522_ALL <-  rbind(
   PAG_INSIGNE_0522,
   PAG_INSIGNE_0522_213
 ) 
-
-
-
 
 range_write(PAG_INSIGNE_0522_ALL,ss="1GYqiPa3H-v-bt_YAzixLzD4gwHMyGEA916zabrL_RUE",range = "A1",sheet="INSIGNE",reformat = FALSE)  
 
@@ -145,16 +148,20 @@ LIST_INSIGNE_0522_ALL <-  rbind(
   LIST_INSIGNE_0522_213
 ) 
 
-
-
 range_write(LIST_INSIGNE_0522_ALL,ss="1GYqiPa3H-v-bt_YAzixLzD4gwHMyGEA916zabrL_RUE",range = "A1",sheet="PEDIDOS INSIGNE",reformat = FALSE)  
 
+## =======================================================================================================  
 
 
+## NAO BONIFICAR  
 
-## ============================================================================================
 
-## ============================================================================================
+LIST_INSIGNE_0522 %>% filter(is.na(CPF3))
+
+range_write(LIST_INSIGNE_0522 %>% filter(is.na(CPF3)),ss="1GYqiPa3H-v-bt_YAzixLzD4gwHMyGEA916zabrL_RUE",range = "A1",sheet="NAO BONIFICAR",reformat = FALSE)  
+
+## ======================================================================================================= 
+
 
 ## VIEW AND CHECK
 
@@ -165,14 +172,18 @@ CP_INSIGNE_0522 %>% summarize(B=sum(BONUS))
 CP_INSIGNE_0522_2 %>% summarize(B=sum(BONUS))
 
 
+## =======================================================================================================  
+
 
 View(LIST_INSIGNE_0522)
 
-LIST_INSIGNE_0522 %>% .[duplicated(.$ID_PEDIDO),] %>% View()
 
 LIST_INSIGNE_0522 %>% filter(CPF2=='NULL') %>% View()
 
 LIST_INSIGNE_0522 %>% filter(is.na(CPF3)) %>% View()
+
+## =======================================================================================================  
+
 
 PAG_INSIGNE_0522 %>% summarize(V=sum(BONUS))
 
