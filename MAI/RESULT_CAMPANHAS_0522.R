@@ -2,10 +2,15 @@
 ## PERIODO DE REFERENCIA 0522
 ## SANDRO JAKOSKA
 
+## GET LIBRARIES
+
 library(DBI)
 library(tidyverse)
 library(lubridate)
 library(googlesheets4)
+
+## ============================================================================================
+
 con2 <- dbConnect(odbc::odbc(), "reproreplica")
 
 
@@ -60,6 +65,12 @@ CP_G139_0522 %>%  summarize(v=sum(VRVENDA)*0.07) # vendedoras
 CP_G139_0522 %>%  summarize(v=sum(VRVENDA)*0.03) # montador
 sum(CP_G139_0522 %>%  summarize(v=sum(VRVENDA)*0.07),CP_G139_0522 %>% summarize(v=sum(VRVENDA)*0.03)) #total
 
+## OBS
+
+OBS_G139 <- paste0("SCHROEDER ","G",CP_G139_0522 %>% 
+                     distinct(GCLCODIGO)," ",format(floor_date(Sys.Date(),"month"),"%m/%y"))
+  
+
 ### Cria Planilha identificação CPFs
 
 CP_G139_0522_IPEDIDOS <- CP_G139_0522 %>% group_by(ID_PEDIDO,PEDDTBAIXA) %>% 
@@ -88,12 +99,12 @@ View(CPF_G139_CPF_0522)
 #lista pedidos
 
 LIST_G139_0522 <- inner_join(CP_G139_0522,CPF_G139_CPF_0522,by="ID_PEDIDO") %>% 
-  mutate(OBS=paste0("SCHROEDER ","G",CP_G139_0522 %>% distinct(GCLCODIGO)," ",format(floor_date(Sys.Date(),"month"),"%m/%y"))) %>% 
+  mutate(OBS=OBS_G139) %>% 
   .[,c(-12,-13,-14)]
 
 View(LIST_G139_0522)
 
-LIST_G139_0422 %>% summarize(BONUS=sum(BONUS)) 
+LIST_G139_0522 %>% summarize(BONUS=sum(BONUS)) 
 
 ### pagamentos
 
@@ -108,10 +119,7 @@ PAG_G139_0522_MONTADOR <- data.frame(CPF=c("88717020930"),BONUS=(CP_G139_0522 %>
                                                                    summarize(BONUS=sum(VRVENDA)*0.03))) 
 
 
-PAG_G139_0522 <- rbind(PAG_G139_0522_VENDEDORAS,PAG_G139_0522_MONTADOR)  %>% 
-  mutate(CLICODIGO='') %>%  mutate(GRUPO='139') %>% 
-mutate(OBS=paste0("SCHROEDER ","G",CP_G139_0522 %>% distinct(GCLCODIGO)," ",format(floor_date(Sys.Date(),"month"),"%m/%y"))) %>% 
-  .[,c(1,4,5,2,3)] %>% as.data.frame()
+PAG_G139_0522 <- rbind(PAG_G139_0522_VENDEDORAS,PAG_G139_0522_MONTADOR) %>%  mutate(OBS=OBS_G139)
   
 View(PAG_G139_0522)
 
@@ -162,22 +170,25 @@ CP_849_0522 %>% summarize(v=sum(VRVENDA))
 
 CP_849_0522 %>% summarize(v=sum(VRVENDA)*0.08)
 
+## OBS
+OBS_849 <-paste0("VITAL ","G",CP_849_0522  %>% distinct(CLICODIGO)," ",format(floor_date(Sys.Date(),"month"),"%m/%y"))
+
+
+
 ## LISTA PEDIDOS
 LIST_849_0522 <- CP_849_0522 %>% 
-  mutate(CPF=rep(c("04455447911","06532582913"), length.out=nrow(CP_849_0522)))  %>% 
-  mutate(OBS=paste0("VITAL ","G",CP_849_0522  %>% distinct(CLICODIGO)," ",format(floor_date(Sys.Date(),"month"),"%m/%y"))) 
+  mutate(CPF=rep(c("04455447911","06532582913"), length.out=nrow(CP_849_0522))) %>% 
+   mutate(OBS=OBS_849)
   
   
 View(LIST_849_0522)
 
 ## PAGAMENTOS 
 
-PAG_849_0522 <- LIST_849_0522 %>% group_by(CPF,CLICODIGO,GCLCODIGO) %>% 
+PAG_849_0522 <- LIST_849_0522 %>% group_by(CPF) %>% 
                     summarize(BONUS=sum(BONUS)) %>% as.data.frame() %>% 
                     mutate(BONUS=sum(BONUS)/2) %>% 
-  mutate(OBS=paste0("VITAL ","G",CP_849_0522  %>% distinct(CLICODIGO)," ",format(floor_date(Sys.Date(),"month"),"%m/%y"))) %>% 
-  rename(.,"GRUPO"="GCLCODIGO") %>% 
-  .[,c(1,4,5,2,3)] %>% as.data.frame()
+  mutate(OBS=OBS_849) 
 
 
 View(PAG_849_0522)
@@ -233,7 +244,7 @@ CP_157_0522 %>% summarize(v=sum(VRVENDA))
 
 CP_157_0522 %>% summarize(v=sum(VRVENDA)*0.1)
 
-
+## OBS
 
 OBS_157 <- paste0("DOM BOSCO ","G",CP_157_0522  %>% 
                     distinct(CLICODIGO)," ",format(floor_date(Sys.Date(),"month"),"%m/%y"))
@@ -252,12 +263,10 @@ View(LIST_157_0522)
 LIST_157_0522 %>% summarize(v=sum(BONUS))
 
 
-## Pagamento
+## PAY
 
-PAG_157_0522 <- LIST_157_0522 %>% group_by(CPF,CLICODIGO,GCLCODIGO) %>% summarize(BONUS=round(sum(BONUS),2)) %>% 
-  mutate(OBS=OBS_157) %>% 
-     rename(.,"GRUPO"="GCLCODIGO") %>% 
-  .[,c(1,4,5,2,3)] %>% as.data.frame()
+PAG_157_0522 <- LIST_157_0522 %>% group_by(CPF) %>% summarize(BONUS=round(sum(BONUS),2)) %>% 
+  mutate(OBS=OBS_157) 
 
 View(PAG_157_0522)
 
@@ -336,8 +345,10 @@ View(CP_1419_0522)
 
 CP_1419_0522 %>% summarize(v=sum(BONUS))
 
+## OBS
 
-OBS_1419 <- paste0("LOOK ","G",CP_1419_0522  %>% 
+
+OBS_1419 <- paste0("LOOK ",CP_1419_0522  %>% 
                     distinct(CLICODIGO)," ",format(floor_date(Sys.Date(),"month"),"%m/%y"))
 
 
@@ -354,11 +365,9 @@ View(LIST_1419_0522)
 
 ### pagamentos  
 
-PAG_1419_0522 <- LIST_1419_0522 %>%  group_by(CPF,CLICODIGO,GCLCODIGO) %>% 
+PAG_1419_0522 <- LIST_1419_0522 %>%  group_by(CPF) %>% 
                              summarize(BONUS=round(sum(BONUS),2)) %>%
-                                mutate(OBS=OBS_1419) %>% 
-                                  rename(.,"GRUPO"="GCLCODIGO") %>% 
-                                    .[,c(1,4,5,2,3)] %>% as.data.frame()
+                                mutate(OBS=OBS_1419)
 
 
 View(PAG_1419_0522)
@@ -472,7 +481,10 @@ View(CP_305_0522)
 
 CP_305_0522 %>% summarize(v=sum(BONUS))
 
-OBS_305 <- paste0("GARUVA ","G",CP_305_0522 %>% 
+
+## OBS
+
+OBS_305 <- paste0("GARUVA ",CP_305_0522 %>% 
                     distinct(CLICODIGO)," ",format(floor_date(Sys.Date(),"month"),"%m/%y"))
 
 
@@ -492,11 +504,9 @@ LIST_305_0522 %>% summarize(v=sum(BONUS))
 
 ### pagamentos
 
-PAG_305_0522 <- LIST_305_0522 %>% group_by(CPF,CLICODIGO,GCLCODIGO) %>% 
+PAG_305_0522 <- LIST_305_0522 %>% group_by(CPF) %>% 
                             summarize(BONUS=round(sum(BONUS),2)) %>% 
-  rename(.,"GRUPO"="GCLCODIGO") %>% 
-  mutate(OBS=paste0("GARUVA ","G",CP_305_0522 %>% distinct(CLICODIGO)," ",format(floor_date(Sys.Date(),"month"),"%m/%y"))) %>% 
-  .[,c(1,4,5,2,3)] %>% as.data.frame()
+                              mutate(OBS=OBS_305) 
   
 
 View(PAG_305_0522)
@@ -639,6 +649,9 @@ CP_G121_0522 %>% summarize(v=sum(VRVENDA))
 
 CP_G121_0522 %>% summarize(v=sum(BONUS))
 
+
+## OBS
+
 OBS_G121 <- paste0("RINALDI ","G",CP_G121_0522 %>% 
                      distinct(GCLCODIGO)," ",format(floor_date(Sys.Date(),"month"),"%m/%y")) 
 
@@ -656,12 +669,9 @@ View(LIST_G121_0522)
 
 ### pagamentos
 
-PAG_G121_0522 <- LIST_G121_0522 %>% group_by(CPF2,CLICODIGO,GCLCODIGO) %>% 
-                    summarize(BONUS=round(sum(BONUS),2)) %>% 
-                      rename(.,"GRUPO"="GCLCODIGO") %>% 
-                       rename(.,"CPF"="CPF2") %>% 
-                         mutate(OBS=OBS_G121) %>% 
-                          .[,c(1,4,5,2,3)] %>% as.data.frame()
+PAG_G121_0522 <- LIST_G121_0522 %>% group_by(CPF) %>% 
+                    summarize(BONUS=round(sum(BONUS),2)) %>%
+                         mutate(OBS=OBS_G121) 
                         
                               View(PAG_G121_0522)
 
@@ -797,12 +807,9 @@ LIST_206_0522 <- inner_join(CP_206_0522,BASE_CPF,by="CLICODIGO") %>%
   
 ### pagamentos
 
-PAG_206_0422 <- LIST_206_0522 %>% group_by(CPF,CLICODIGO,GCLCODIGO) %>% 
+PAG_206_0422 <- LIST_206_0522 %>% group_by(CPF) %>% 
                       summarize(BONUS=round(sum(BONUS),2)) %>% 
-  rename(.,"GRUPO"="GCLCODIGO") %>% 
-  mutate(OBS=OBS_206) %>% 
-  .[,c(1,4,5,2,3)] %>% as.data.frame()
-
+                        mutate(OBS=OBS_206)
                                                                   
 
 View(PAG_206_0422)
@@ -909,14 +916,17 @@ LIST_213_0522 <- inner_join(CP_213_0522,BASE_CPF,by="CLICODIGO") %>%
   .[,-12] %>% 
   rename(.,"CPF"="CPF2") 
 
-View(LIST_213_0522) %>% distinct(.,ID_PEDIDO,.keep_all = TRUE)
+## REMOVE DUPLICATES
+
+LIST_213_0522_2 <- LIST_213_0522 %>% distinct(.,ID_PEDIDO,.keep_all = TRUE)
 
 
-PAG_213_0522<-  LIST_213_0522 %>% group_by(CLICODIGO,GCLCODIGO,CPF) %>% 
+## PAY
+
+PAG_213_0522<-  LIST_213_0522 %>% group_by(CPF) %>% 
                            summarize(BONUS=sum(BONUS)/(LIST_213_0522  %>% distinct(CPF) %>% lengths())) %>% 
-                            mutate(OBS=OBS_213) %>% 
-                               .[,c(3,4,5,1,2)] %>% 
-                                  rename(.,"GRUPO"="GCLCODIGO")
+                            mutate(OBS=OBS_213) 
+                              
 
                                
 View(PAG_213_0522)
@@ -1099,7 +1109,7 @@ CP_1225_0522 %>% summarize(v=sum(VRVENDA))
 
 CP_1225_0522 %>% summarize(v=sum(BONUS))
 
-OBS_1225 <- paste0("VINI ","G",CP_1225_0522 %>% 
+OBS_1225 <- paste0("VINI ",CP_1225_0522 %>% 
                      distinct(GCLCODIGO)," ",format(floor_date(Sys.Date(),"month"),"%m/%y")) 
 
 
@@ -1114,26 +1124,154 @@ LIST_1225_0522  <- inner_join(CP_1225_0522,BASE_CPF,by="CLICODIGO") %>%
 View(LIST_1225_0522)
 
 
-### pagamentos
+### PAY
 
-PAG_1225_0522 <- LIST_1225_05222 %>% group_by(CPF2,CLICODIGO,GCLCODIGO) %>% 
+PAG_1225_0522 <- LIST_1225_0522 %>% group_by(CPF) %>% 
   summarize(BONUS=round(sum(BONUS),2)) %>% 
-  rename(.,"GRUPO"="GCLCODIGO") %>% 
-  rename(.,"CPF"="CPF2") %>% 
-  mutate(OBS=OBS_1225) %>% 
-  .[,c(1,4,5,2,3)] %>% as.data.frame()
+  mutate(OBS=OBS_1225) 
 
 View(PAG_1225_0522)
 
-# Calc Bonus
 
 PAG_1225_0522 %>% summarize(v=sum(BONUS))
 
 
 ## =============================================================================================================         
 
+# SQL 1676 ORBEN
+
+CP_1676_0522 <- dbGetQuery(con2,"
+WITH FIS AS (SELECT FISCODIGO FROM TBFIS WHERE FISTPNATOP IN ('V','SR','R')),
+
+CLI AS(SELECT C.CLICODIGO,CLINOMEFANT,GCLCODIGO,SETOR FROM CLIEN C
+       LEFT JOIN (SELECT CLICODIGO,D.ZOCODIGO,ZODESCRICAO SETOR FROM ENDCLI D
+       INNER JOIN ZONA Z ON D.ZOCODIGO=Z.ZOCODIGO WHERE ENDFAT='S')A ON 
+       C.CLICODIGO=A.CLICODIGO WHERE C.CLICODIGO=1676),
+
+PD AS (SELECT ID_PEDIDO,PEDDTBAIXA,PEDID.CLICODIGO,GCLCODIGO,SETOR,CLINOMEFANT,PEDAUTORIZOU  
+FROM PEDID 
+INNER JOIN FIS ON PEDID.FISCODIGO1=FIS.FISCODIGO
+INNER JOIN CLI ON PEDID.CLICODIGO=CLI.CLICODIGO
+WHERE PEDDTBAIXA
+BETWEEN DATEADD(MONTH, -1, CURRENT_DATE - EXTRACT(DAY FROM CURRENT_DATE) + 1)
+       AND CURRENT_DATE - EXTRACT(DAY FROM CURRENT_DATE)
+AND PEDSITPED <>'C'),
+
+PROD1 AS (SELECT PROCODIGO,PRODESCRICAO FROM PRODU WHERE MARCODIGO=57 AND (PRODESCRICAO LIKE '%COMFORT MAX%')),
+
+PROD2 AS (SELECT PROCODIGO,PRODESCRICAO FROM PRODU WHERE MARCODIGO=57 AND (PRODESCRICAO LIKE '%VARILUX X DESIG%')),
+
+PROD3 AS (SELECT PROCODIGO,PRODESCRICAO FROM PRODU WHERE MARCODIGO=57 AND (PRODESCRICAO LIKE '%VARILUX E DESIGN%')),
 
 
+PED_PROMO_PAP AS (SELECT P.ID_PEDIDO ID_PEDIDO_PROMO FROM PDPRD P
+ INNER JOIN PD ON P.ID_PEDIDO=PD.ID_PEDIDO
+   WHERE PROCODIGO='PAP'),
+   
+   
+PED_PROMO_PLUGIN AS (SELECT ID_PEDIDPROMOCAO ID_PEDIDO_PROMO FROM PEDIDPROMO P
+   INNER JOIN PD ON P.ID_PEDIDPROMOCAO=PD.ID_PEDIDO),
+
+PED_PROMO_UNION AS (SELECT ID_PEDIDO_PROMO FROM PED_PROMO_PAP UNION
+SELECT ID_PEDIDO_PROMO FROM PED_PROMO_PLUGIN)
+
+SELECT 
+PDPRD.ID_PEDIDO,
+  PEDDTBAIXA,
+   CLICODIGO,
+    GCLCODIGO,
+     SETOR,
+       PROD1.PROCODIGO,
+        PDPDESCRICAO,
+        PEDAUTORIZOU,
+          SUM(PDPQTDADE)QTD,
+           SUM(PDPUNITLIQUIDO*PDPQTDADE)VRVENDA,
+            CAST(50 AS INTEGER) BONUS
+FROM
+PDPRD
+INNER JOIN PD ON PDPRD.ID_PEDIDO=PD.ID_PEDIDO
+INNER JOIN PROD1 ON PDPRD.PROCODIGO=PROD1.PROCODIGO
+LEFT OUTER JOIN PED_PROMO_UNION ON PDPRD.ID_PEDIDO=PED_PROMO_UNION.ID_PEDIDO_PROMO
+WHERE PED_PROMO_UNION.ID_PEDIDO_PROMO IS NULL
+GROUP BY 1,2,3,4,5,6,7,8 HAVING SUM(PDPQTDADE)>=2 UNION
+
+SELECT
+PDPRD.ID_PEDIDO,
+  PEDDTBAIXA,
+   CLICODIGO,
+    GCLCODIGO,
+     SETOR,
+       PROD2.PROCODIGO,
+        PDPDESCRICAO,
+        PEDAUTORIZOU,
+          SUM(PDPQTDADE)QTD,
+           SUM(PDPUNITLIQUIDO*PDPQTDADE)VRVENDA,
+            CAST(100 AS INTEGER) BONUS
+FROM
+PDPRD
+INNER JOIN PD ON PDPRD.ID_PEDIDO=PD.ID_PEDIDO
+INNER JOIN PROD2 ON PDPRD.PROCODIGO=PROD2.PROCODIGO
+LEFT OUTER JOIN PED_PROMO_UNION ON PDPRD.ID_PEDIDO=PED_PROMO_UNION.ID_PEDIDO_PROMO
+WHERE PED_PROMO_UNION.ID_PEDIDO_PROMO IS NULL
+GROUP BY 1,2,3,4,5,6,7,8 HAVING SUM(PDPQTDADE)>=2 UNION
+
+SELECT 
+PDPRD.ID_PEDIDO,
+  PEDDTBAIXA,
+   CLICODIGO,
+    GCLCODIGO,
+     SETOR,
+      PROD3.PROCODIGO,
+        PDPDESCRICAO,
+        PEDAUTORIZOU,
+          SUM(PDPQTDADE)QTD,
+           SUM(PDPUNITLIQUIDO*PDPQTDADE)VRVENDA,
+            CAST(80 AS INTEGER) BONUS
+FROM
+PDPRD
+INNER JOIN PD ON PDPRD.ID_PEDIDO=PD.ID_PEDIDO
+INNER JOIN PROD3 ON PDPRD.PROCODIGO=PROD3.PROCODIGO
+LEFT OUTER JOIN PED_PROMO_UNION ON PDPRD.ID_PEDIDO=PED_PROMO_UNION.ID_PEDIDO_PROMO
+WHERE PED_PROMO_UNION.ID_PEDIDO_PROMO IS NULL
+GROUP BY 1,2,3,4,5,6,7,8 HAVING SUM(PDPQTDADE)>=2
+ ") %>%
+  mutate(CPF=sub("\\D+", '',PEDAUTORIZOU)) %>% 
+  mutate(CPF=sub("\\.", '',CPF)) %>% 
+  mutate(CPF=sub("\\-", '',CPF)) %>% 
+  mutate(CPF=sub("\\,", '',CPF)) 
+
+View(CP_1676_0522)
+
+CP_1676_0522 %>% summarize(v=sum(VRVENDA))
+
+CP_1676_0522 %>% summarize(v=sum(BONUS))
+
+OBS_1676 <- paste0("ORBEN ",CP_1676_0522 %>% 
+                     distinct(CLICODIGO)," ",format(floor_date(Sys.Date(),"month"),"%m/%y")) 
+
+
+## JOIN CPF
+
+LIST_1676_0522  <- inner_join(CP_1676_0522,BASE_CPF,by="CLICODIGO") %>% 
+  rename(CPF1=CPF.x) %>% rename(CPF2=CPF.y) %>% 
+  .[,-12] %>% 
+  rename(.,"CPF"="CPF2") %>% 
+  mutate(OBS=OBS_1676)
+
+View(LIST_1676_0522)
+
+
+### pagamentos
+
+PAG_1676_0522 <- LIST_1676_0522 %>% group_by(CPF) %>% 
+  summarize(BONUS=round(sum(BONUS),2)) %>% 
+  mutate(OBS=OBS_1676) 
+
+View(PAG_1676_0522)
+
+# Calc Bonus
+
+PAG_1676_0522 %>% summarize(v=sum(BONUS))
 
 
 ## =============================================================================================================         
