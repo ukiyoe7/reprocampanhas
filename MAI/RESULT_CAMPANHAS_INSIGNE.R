@@ -2,13 +2,29 @@
 ## PERIODO DE REFERENCIA 0522
 ## SANDRO JAKOSKA
 
+
+## LIBRARIES
+
 library(DBI)
 library(tidyverse)
 library(lubridate)
 library(googlesheets4)
+
+## =======================================================================================================  
+
+## CONNECT DB
+
 con2 <- dbConnect(odbc::odbc(), "reproreplica")
 
-## SQL CAMPANHAS INSIGNE 
+## GET CPF
+
+BASE_CPF <- read_sheet("1ShpVwae6DVAqYW3afQli7XggL_7cJrDiWeKw2luKpC0",
+                       sheet = 'DADOS') %>% select(CLICODIGO,CPF) 
+
+## =======================================================================================================  
+
+
+## SQL 
 
 CP_INSIGNE_0522 <-dbGetQuery(con2,"
 WITH CLI AS (SELECT DISTINCT C.CLICODIGO,CLINOMEFANT,GCLCODIGO,SETOR
@@ -59,38 +75,131 @@ PD.ID_PEDIDO,
   mutate(CPF=sub("\\-", '',CPF)) %>% 
   mutate(CPF=sub("\\.", '',CPF))  
 
-View(CP_INSIGNE_0522) 
+## =======================================================================================================  
+
+## OBS
+
+OBS_SIG <- paste0("INSIGNE"," ",format(floor_date(Sys.Date(),"month"),"%m/%y"))
 
 
-## OBTEM BASE CPFS
-BASE_CPF_INSIGNE <- read_sheet("1TO0CM5rnZgkesQUG444H8jqH2WRpUaVgvKilV-7uttY",
-                               sheet = 'DADOS') %>% select(CLICODIGO,CPF) 
+##REMOVE DUPLICATES
+
+CP_INSIGNE_0522_2 <- CP_INSIGNE_0522 %>% filter(CLICODIGO!=213)
+
+
+## INTERSECTION
+
+LIST_INSIGNE_0522 <- left_join(CP_INSIGNE_0522_2,BASE_CPF,by="CLICODIGO") %>%
+  rename(CPF=CPF.x) %>% rename(CPF2=CPF.y) %>% 
+   mutate(CPF3=ifelse(CPF2=='NULL',CPF,CPF2)) %>% 
+    mutate(OBS=OBS_SIG) 
+
+
+## PAY
+
+PAG_INSIGNE_0522 <-  LIST_INSIGNE_0522 %>% filter(nchar(CPF3)==11) %>% group_by(CPF3) %>% 
+  summarize(BONUS=sum(BONUS)) %>% 
+  mutate(OBS=OBS_SIG) 
+
+
+## =======================================================================================================  
+
+## FILTRA CLIENTES COM PEDIDOS DUPLICADOS
+
+CP_INSIGNE_0522_213 <- CP_INSIGNE_0522 %>% filter(CLICODIGO==213)
 
 ## INTERSECTA RESULTADO COM BASE DE CPF
 
-LIST_INSIGNE_0522 <- inner_join(CP_INSIGNE_0522,BASE_CPF_INSIGNE,by="CLICODIGO") %>%
-  rename(CPF1=CPF.x) %>% rename(CPF2=CPF.y)
+LIST_INSIGNE_0522_213 <- left_join(CP_INSIGNE_0522_213,BASE_CPF,by="CLICODIGO") %>%
+  rename(CPF=CPF.x) %>% rename(CPF2=CPF.y) %>% 
+  mutate(OBS=OBS_SIG) %>% mutate(CPF3=ifelse(CPF2=='NULL',CPF,CPF2)) 
+
+
+PAG_INSIGNE_0522_213 <-  LIST_INSIGNE_0522_213 %>% group_by(CPF3) %>% 
+  summarize(BONUS=sum(BONUS)/(LIST_INSIGNE_0522_213 %>% distinct(CPF2) %>% lengths())) %>% 
+  mutate(OBS=OBS_SIG) 
+
+## ======================================================================================================= 
+
+## PAGAMENTOS FINAL  
+
+
+PAG_INSIGNE_0522_ALL <-  rbind( 
+  PAG_INSIGNE_0522,
+  PAG_INSIGNE_0522_213
+) 
+
+
+
+
+range_write(PAG_INSIGNE_0522_ALL,ss="1GYqiPa3H-v-bt_YAzixLzD4gwHMyGEA916zabrL_RUE",range = "A1",sheet="INSIGNE",reformat = FALSE)  
+
+
+## =============================================================================================================         
+
+## LISTAGEM FINAL  
+
+
+LIST_INSIGNE_0522_ALL <-  rbind( 
+  LIST_INSIGNE_0522,
+  LIST_INSIGNE_0522_213
+) 
+
+
+
+range_write(LIST_INSIGNE_0522_ALL,ss="1GYqiPa3H-v-bt_YAzixLzD4gwHMyGEA916zabrL_RUE",range = "A1",sheet="PEDIDOS INSIGNE",reformat = FALSE)  
+
+
+
+
+## ============================================================================================
+
+## ============================================================================================
+
+## VIEW AND CHECK
+
+View(CP_INSIGNE_0522)
+
+CP_INSIGNE_0522 %>% summarize(B=sum(BONUS))
+
+CP_INSIGNE_0522_2 %>% summarize(B=sum(BONUS))
+
+
 
 View(LIST_INSIGNE_0522)
 
-## RESUMO DE PAGAMENTOS POR CPF
+LIST_INSIGNE_0522 %>% .[duplicated(.$ID_PEDIDO),] %>% View()
 
-PAG_INSIGNE_0522 <- LIST_INSIGNE_0522 %>% group_by(CPF2,CLICODIGO) %>% 
-  summarize(bonus=sum(BONUS)) 
+LIST_INSIGNE_0522 %>% filter(CPF2=='NULL') %>% View()
 
-## CONTAGEM DE PARTICIPANTES PARA DIVISAO DE VALORES
+LIST_INSIGNE_0522 %>% filter(is.na(CPF3)) %>% View()
 
-PAG_INSIGNE_PART_0522 <- LIST_INSIGNE_0522 %>% group_by(CLICODIGO) %>% summarize(q=n_distinct(CPF2))
+PAG_INSIGNE_0522 %>% summarize(V=sum(BONUS))
 
-##  RESUMO DE PAGAMENTOS POR PARTICIPANTES
+CP_INSIGNE_0522 %>% filter(is.na(CPF)) %>% View()
 
-PAG_INSIGNE_0522_2 <- inner_join(PAG_INSIGNE_PART_0522,PAG_INSIGNE_0522,by="CLICODIGO") %>% as.data.frame() %>% 
-  mutate(BONUS2=bonus/q) %>% select(CLICODIGO,CPF2,BONUS2) %>% mutate(OBS="INSIGNE 05/22")
+CP_INSIGNE_0522 %>% filter(CLICODIGO==213) %>% summarize(V=sum(BONUS))
 
-View(PAG_INSIGNE_0522_2)
+CP_INSIGNE_0522 %>% filter(nchar(CPF)<11) %>% View()
 
-## RESUMO DO VALOR FINAL 
+CP_INSIGNE_0522_2 <- CP_INSIGNE_0522 %>% filter(CLICODIGO!=213)
 
-PAG_INSIGNE_0522_2 %>% summarize(V=sum(BONUS2)) 
+View(CP_INSIGNE_0522_2)
 
-## ============================================================================================
+## LINO
+
+LIST_INSIGNE_0522_213 %>% filter(CLICODIGO==213) %>% View()
+
+PAG_INSIGNE_0522_213 %>% View()
+
+## FINAL
+
+PAG_ALL_0522 %>% summarize(v=sum(BONUS))
+
+LIST_INSIGNE_0522_ALL %>% summarize(v=sum(BONUS))
+
+
+
+
+
+
