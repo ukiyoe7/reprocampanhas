@@ -1,0 +1,98 @@
+---
+title: "CAMPANHAS MAIO 2022"
+output:
+  html_document: default
+  pdf_document: default
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+---
+```{r global_options, include = FALSE}
+options(width = 100)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE,
+                      cache = FALSE, tidy = FALSE, size = "small")
+```
+<style>
+
+.main-container {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+P{
+font: 110% georgia, sans-serif;
+}
+
+h3 { 
+	font: italic normal 1.4em georgia, sans-serif;
+	letter-spacing: 1px; 
+	margin-bottom: 0; 
+	color: #7D775C;
+	
+hr {
+ border-top: 2px dotted red;
+}	
+
+</style>
+
+
+
+```{r}
+library(DBI)
+library(tidyverse)
+library(lubridate)
+library(googlesheets4)
+con2 <- dbConnect(odbc::odbc(), "reproreplica")
+```
+
+
+<H3>Campanhas Insigne</H3>
+<p>Resultado mensal bonificação </p>
+
+```{r echo=FALSE,fig.width = 11,fig.height =4}
+
+RESULT_INSIGNE <- read_sheet("1TIlc2UCW9Cz1wVyXe9Fp6WgopDOROJfDkdJUPSWwxek",
+                       sheet = "INSIGNE") 
+
+
+RESULT_INSIGNE %>% ggplot(.,aes(DATE,VALOR,fill=DATE)) + geom_bar(stat = "identity") + 
+  geom_text(aes(label=format(VALOR,big.mark=","),vjust=-0.1)) + 
+  scale_x_datetime(date_breaks = "month",date_labels = "%b/%Y",expand = c(0.01,0.01)) +
+  scale_y_continuous(expand = c(0,0),limits = c(0,22000)) + 
+  scale_fill_datetime(low="#cce5e5",high = "#004c4c") +
+  theme(axis.text.x = element_text(size = 13),
+                      axis.title.x = element_blank(),
+                      axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        panel.grid = element_blank(),
+        legend.position = "none"
+        )
+```
+
+
+<HR>
+
+<p>Análise campanhas rebates</p>
+
+```{r, echo=FALSE,fig.width = 11,fig.height =4}
+
+RESULT_REBATES <- read_sheet("1TIlc2UCW9Cz1wVyXe9Fp6WgopDOROJfDkdJUPSWwxek",
+                             sheet = "REBATES") 
+
+
+RESULT_REBATES %>% ggplot(.,aes(DATE,VALOR,fill=DATE)) + geom_bar(stat = "identity") + 
+  geom_text(aes(label=format(VALOR,big.mark=","),vjust=-0.1)) + 
+  scale_x_datetime(date_breaks = "month",date_labels = "%b/%Y",expand = c(0.01,0.01)) +
+  scale_y_continuous(expand = c(0,0),limits = c(0,22000)) + 
+  scale_fill_datetime(low="#ffd9d4",high = "#b22e1d") +
+  theme(axis.text.x = element_text(size = 14),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        panel.grid = element_blank(),
+        legend.position = "none"
+  ) + labs(title = "Rebates", subtitle = "bonificações mensais")
+```
+
+
