@@ -9,7 +9,12 @@ date: "`r format(Sys.time(), '%d %B, %Y')`"
 options(width = 100)
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE,
                       cache = FALSE, tidy = FALSE, size = "small")
+
+
 ```
+
+<link href='https://fonts.googleapis.com/css?family=Abel' rel='stylesheet'>
+<link href='https://fonts.googleapis.com/css?family=Alegreya Sans SC' rel='stylesheet'>
 <style>
 
 .main-container {
@@ -19,17 +24,24 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE,
 }
 
 P{
-font: 110% georgia, sans-serif;
+font:'Alegreya Sans SC';font-size: 25px;
 }
 
 h3 { 
-	font: italic normal 1.4em georgia, sans-serif;
-	letter-spacing: 1px; 
+	font-family: 'Abel';font-size: 25px;
 	margin-bottom: 0; 
-	color: #7D775C;
+	font-weight: bold;
+}
+
+h4 { 
+	font-family: 'Abel';font-size: 22px;
+	margin-bottom: 0; 
+	font-weight: bold;
+	color:#8a8a8a;
+}
 	
 hr {
- border-top: 2px dotted red;
+ border-top: 2px dotted grey;
 }	
 
 </style>
@@ -41,11 +53,45 @@ library(DBI)
 library(tidyverse)
 library(lubridate)
 library(googlesheets4)
+library(scales)
 con2 <- dbConnect(odbc::odbc(), "reproreplica")
 ```
 
+<h3>TOTAL DE BONIFICAÇÕES EM MAIO 2022: 45.427 </h3>
+</br>
+<h4>TOTAL DE BONIFICAÇÕES EM ABRIL 2022: 38.834 </h4>
+</br>
 
-<H3>Campanhas Insigne</H3>
+<p>A maior proporção de bonificações está alocada nas campanhas Insigne, seguida de perto as bonificações em rebates</p>
+
+<p></p>
+
+```{r echo=FALSE,fig.width = 7,fig.height =4}
+RESULT_GERAL <- read_sheet("1TIlc2UCW9Cz1wVyXe9Fp6WgopDOROJfDkdJUPSWwxek",
+                             sheet = "RESUMODADOS") 
+
+
+RESULT_GERAL %>% mutate(PROP=percent(BONUS/sum(BONUS)))%>% 
+  ggplot(.,aes(x=reorder(CAMPANHAS,BONUS),BONUS,fill=CAMPANHAS)) + geom_bar(stat = "identity") + 
+  geom_text(aes(label=format(BONUS,big.mark=","),hjust=-0.1)) + 
+  geom_text(aes(label=format(PROP,big.mark=","),hjust=1.5)) + 
+  coord_flip() +
+  scale_y_continuous(limits = c(0,22000)) +
+  theme(axis.text.x = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.text.y=element_blank(),
+        panel.grid = element_blank(),
+        legend.position = "top",
+        text = element_text(size=15)
+  ) + scale_fill_manual(values=c("#1b85b8","#5a5255","#559e83","#ae5a41"))
+
+```
+
+<hr>
+
 <p>Resultado mensal bonificação </p>
 
 ```{r echo=FALSE,fig.width = 11,fig.height =4}
@@ -72,7 +118,6 @@ RESULT_INSIGNE %>% ggplot(.,aes(DATE,VALOR,fill=DATE)) + geom_bar(stat = "identi
 
 <HR>
 
-<p>Análise campanhas rebates</p>
 
 ```{r, echo=FALSE,fig.width = 11,fig.height =4}
 

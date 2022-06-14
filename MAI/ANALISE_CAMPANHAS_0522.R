@@ -8,10 +8,36 @@ library(DBI)
 library(tidyverse)
 library(lubridate)
 library(googlesheets4)
+library(scales)
+
 
 ## ============================================================================================
 
 con2 <- dbConnect(odbc::odbc(), "reproreplica")
+
+
+
+RESULT_GERAL <- read_sheet("1TIlc2UCW9Cz1wVyXe9Fp6WgopDOROJfDkdJUPSWwxek",
+                             sheet = "RESUMODADOS") 
+
+
+RESULT_GERAL %>% mutate(PROP=percent(BONUS/sum(BONUS)))%>% 
+  ggplot(.,aes(x=reorder(CAMPANHAS,BONUS),BONUS,fill=CAMPANHAS)) + geom_bar(stat = "identity") + 
+  geom_text(aes(label=format(BONUS,big.mark=","),hjust=-0.1)) + 
+  geom_text(aes(label=format(PROP,big.mark=","),hjust=1.5)) + 
+  coord_flip() +
+  scale_y_continuous(limits = c(0,22000)) +
+  theme(axis.text.x = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.text.y=element_blank(),
+        panel.grid = element_blank(),
+        legend.position = "top",
+        text = element_text(size=15)
+  ) + scale_fill_manual(values=c("#1b85b8","#5a5255","#559e83","#ae5a41"))
+
 
 
 ## GET CPF
