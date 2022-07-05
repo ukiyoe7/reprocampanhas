@@ -136,7 +136,7 @@ PAG_INSIGNE_0622_ALL <-  rbind(
   PAG_INSIGNE_0622_213
 ) 
 
-range_write(PAG_INSIGNE_0622_ALL,ss="1yEv5jjVjcm33wO5pcrdNqzEy5UGQ2bTa39vjmeEzWSE",range = "A1",sheet="INSIGNE",reformat = FALSE)  
+range_write(PAG_INSIGNE_0622_ALL,ss="1yEv5jjVjcm33wO5pcrdNqzEy5UGQ2bTa39vjmeEzWSE",range = "A:P",sheet="INSIGNE",reformat = FALSE)  
 
 
 ## =============================================================================================================         
@@ -149,7 +149,7 @@ LIST_INSIGNE_0622_ALL <-  rbind(
   LIST_INSIGNE_0622_213
 ) 
 
-range_write(LIST_INSIGNE_0622_ALL,ss="1yEv5jjVjcm33wO5pcrdNqzEy5UGQ2bTa39vjmeEzWSE",range = "A1",sheet="PEDIDOS INSIGNE",reformat = FALSE)  
+range_write(LIST_INSIGNE_0622_ALL,ss="1yEv5jjVjcm33wO5pcrdNqzEy5UGQ2bTa39vjmeEzWSE",range = "A:P",sheet="PEDIDOS INSIGNE",reformat = FALSE)  
 
 ## =======================================================================================================  
 
@@ -230,7 +230,7 @@ PEDDTBAIXA,PEDORIGEM,TPCODIGO,PEDAUTORIZOU FROM PEDID P
    INNER JOIN FIS F ON P.FISCODIGO1=F.FISCODIGO
     INNER JOIN CLI C ON P.CLICODIGO=C.CLICODIGO
      WHERE PEDDTBAIXA
-     BETWEEN '01.06.2022' AND 'TODAY' AND PEDSITPED<>'C' AND PEDORIGEM='D'),
+     BETWEEN '01.06.2022' AND '30.06.2022' AND PEDSITPED<>'C' AND PEDORIGEM='D'),
 
 AUX AS (SELECT PROCODIGO,PROCODIGO2,IIF(PROCODIGO2 IS NULL,PROCODIGO,PROCODIGO2)CHAVE FROM PRODU
 WHERE MARCODIGO=189 AND PROTIPO<>'T'),
@@ -258,7 +258,7 @@ PD.ID_PEDIDO,
    INNER JOIN PED P ON PD.ID_PEDIDO=P.ID_PEDIDO
     INNER JOIN AUX A ON PD.PROCODIGO=A.PROCODIGO
      INNER JOIN VALORES_PROMO ON PD.PROCODIGO=VALORES_PROMO.PROCODIGO 
-      GROUP BY 1,2,3,4,5,6,7,8,9 HAVING SUM(PDPQTDADE)>=2
+      GROUP BY 1,2,3,4,5,6,7,8,9,10 HAVING SUM(PDPQTDADE)>=2
 ")  %>% mutate(CPF=sub("\\D+", '', PEDAUTORIZOU))  %>% 
   mutate(CPF=sub("\\.", '',CPF)) %>% 
   mutate(CPF=sub("\\-", '',CPF)) %>% 
@@ -266,4 +266,4 @@ PD.ID_PEDIDO,
 
 View(CP_INSIGNE_0622_DIGITADOS)
 
-range_write(LIST_INSIGNE_0622 %>% filter(ORIGEM=='D'),ss="17nd8kG6pCqbHWOr9dKlMNz0ntUNUUVOLUUZB9n43s8A",range = "A1",sheet="DADOS",reformat = FALSE)  
+range_write(CP_INSIGNE_0622_DIGITADOS,ss="1yEv5jjVjcm33wO5pcrdNqzEy5UGQ2bTa39vjmeEzWSE",range = "A:P",sheet="PEDIDOS INSIGNE DIGITADOS NÃO BONIFICAR",reformat = FALSE)  
