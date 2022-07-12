@@ -1,0 +1,280 @@
+---
+title: "CAMPANHAS JUNHO 2022"
+output:
+  html_document: default
+  pdf_document: default
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+---
+```{r global_options, include = FALSE}
+options(width = 100)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE,
+                      cache = FALSE, tidy = FALSE, size = "small")
+
+
+```
+
+<link href='https://fonts.googleapis.com/css?family=Abel' rel='stylesheet'>
+<link href='https://fonts.googleapis.com/css?family=Alegreya Sans SC' rel='stylesheet'>
+<style>
+
+.main-container {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+P{
+font:'Alegreya Sans SC';font-size: 17px;
+}
+
+h3 { 
+	font-family: 'Abel';font-size: 25px;
+	margin-bottom: 0; 
+	font-weight: bold;
+}
+
+h4 { 
+	font-family: 'Abel';font-size: 22px;
+	margin-bottom: 0; 
+	font-weight: bold;
+	color:#8a8a8a;
+}
+
+h5 { 
+	font-family: 'Abel';font-size: 20px;
+	margin-bottom: 0; 
+	font-weight: bold;
+	color:#b5b5b5;
+}
+	
+	
+hr {
+ border-top: 2px dotted grey;
+}	
+
+.square  {
+  font:'Alegreya Sans SC';font-size: 17px;
+  background-color:#f7f7b5;
+  border-radius: 6px;
+  min-height: auto;
+  max-width:auto;
+  --shadow: 1px 1px 1px 1px rgb(0 0 0 / 0.25);
+  box-shadow: var(--shadow);
+  counter-increment: item;
+  display: flex;
+  justify-content: left;
+  align-items: left;
+  margin-bottom:10px;
+  padding:10px;
+  
+}
+
+</style>
+
+
+
+```{r}
+library(DBI)
+library(tidyverse)
+library(lubridate)
+library(googlesheets4)
+library(scales)
+con2 <- dbConnect(odbc::odbc(), "reproreplica")
+```
+
+<h3>TOTAL DE BONIFICAÇÕES EM JUNHO 2022: 40.078 </h3>
+</br>
+<h4>TOTAL DE BONIFICAÇÕES EM MAIO 2022: 45.427 </h4>
+</br>
+
+
+<p>Esse documento é uma análise visual da atividade em bonificações em cartões Alelo dos últimos 12 meses. </p>
+
+<hr>
+
+<div class=square style="--shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px, #f2f227 0px 0px 0px 1px;">
+
+Diferente do mês anterior, a bonificação em rebates aumentou e alcançou a maior participação no total de bonificações. As bonificações Insigne caíram devido à regra de não bonificar pedidos digitados.
+
+</div>
+
+```{r echo=FALSE,fig.width = 8,fig.height =4}
+RESULT_GERAL <- read_sheet("1I7uZgi-fpRfX561y8u4cZWlq1hmwTO1YcZB1xxSjomo",
+                             sheet = "RESUMODADOS") 
+
+
+RESULT_GERAL %>% mutate(PROP=percent(BONUS/sum(BONUS)))%>% 
+  ggplot(.,aes(x=reorder(CAMPANHAS,BONUS),BONUS,fill=CAMPANHAS)) + geom_bar(stat = "identity") + 
+  geom_text(aes(label=format(BONUS,big.mark=","),hjust=-0.1)) + 
+  geom_text(aes(label=format(PROP,big.mark=","),hjust=1.5)) + 
+  coord_flip() +
+  scale_y_continuous(limits = c(0,22000)) +
+  theme(axis.text.x = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.text.y=element_blank(),
+        panel.grid = element_blank(),
+        legend.position = "top",
+        text = element_text(size=15)
+  ) + scale_fill_manual(values=c("#275f96","#328c62","#db884c","#8d8d8d","#f0dc82"))
+
+
+```
+
+<hr>
+
+
+<div class=square style="--shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px, #f2f227 0px 0px 0px 1px;">
+
+A bonificação em campanhas Insigne tiveram uma queda nos últimos 3 meses. 
+
+</div>
+
+
+```{r echo=FALSE,fig.width = 11,fig.height =4}
+
+RESULT_INSIGNE <- read_sheet("1I7uZgi-fpRfX561y8u4cZWlq1hmwTO1YcZB1xxSjomo",
+                       sheet = "INSIGNE") 
+
+
+RESULT_INSIGNE %>% ggplot(.,aes(DATE,VALOR,fill=DATE)) + geom_bar(stat = "identity") + 
+  geom_text(aes(label=format(VALOR,big.mark=","),vjust=-0.1)) + 
+  scale_x_datetime(date_breaks = "month",date_labels = "%b/%Y",expand = c(0.01,0.01)) +
+  scale_y_continuous(expand = c(0,0),limits = c(0,22000)) + 
+  scale_fill_datetime(low="#b7c9dc",high = "#092e53") +
+  theme(axis.text.x = element_text(size = 14),
+                      axis.title.x = element_blank(),
+                      axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        panel.grid = element_blank(),
+        legend.position = "none"
+        ) + labs(title = "Bonificações Insigne")
+```
+
+
+<div class=square style="--shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px, #f2f227 0px 0px 0px 1px;">
+
+No comparativo com as vendas de lentes Insigne, houve uma queda nas vendas de -1,90% e nas bonificações -16% porém não foram bonificados R$2500 por serem pedidos digitados portanto somando-se esse valor a variação seria -3%  
+
+</div>
+
+
+```{r}
+RESULT_INSIGNE2 <- read_sheet("1I7uZgi-fpRfX561y8u4cZWlq1hmwTO1YcZB1xxSjomo",
+                             sheet = "INSIGNE2") 
+
+
+RESULT_INSIGNE2  %>% ggplot(.,aes(DATE,VALOR,fill=TIPO)) + geom_bar(stat = "identity",position = "dodge2") + 
+  geom_text(aes(label=format(VALOR,big.mark=",")),position = position_dodge2(width =0.7),vjust=-0.1,size=5) + 
+  scale_x_datetime(date_breaks = "month",date_labels = "%b/%Y",expand = c(0.01,0.01)) +
+  scale_y_continuous(expand = c(0,0),limits = c(0,200000)) +
+  scale_fill_manual(values = c("#6b8197","#092e53"))+
+  theme(axis.text.x = element_text(size = 14),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        panel.grid = element_blank(),
+        legend.position = "none"
+  ) + labs(title = "Vendas Insigne X Bonificações Insigne")
+```
+
+
+
+<HR>
+
+<div class=square style="--shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px, #f2f227 0px 0px 0px 1px;">
+
+A bonificação em rebates cresceu em Junho.
+
+</div>
+
+```{r, echo=FALSE,fig.width = 11,fig.height =4}
+
+RESULT_REBATES <- read_sheet("1I7uZgi-fpRfX561y8u4cZWlq1hmwTO1YcZB1xxSjomo",
+                             sheet = "REBATES") 
+
+
+RESULT_REBATES %>% ggplot(.,aes(DATE,VALOR,fill=DATE)) + geom_bar(stat = "identity") + 
+  geom_text(aes(label=format(VALOR,big.mark=","),vjust=-0.1)) + 
+  scale_x_datetime(date_breaks = "month",date_labels = "%b/%Y",expand = c(0.01,0.01)) +
+  scale_y_continuous(expand = c(0,0),limits = c(0,22000)) + 
+  scale_fill_datetime(low="#eabb99",high = "#a34400") +
+  theme(axis.text.x = element_text(size = 13),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        panel.grid = element_blank(),
+        legend.position = "none"
+  ) + labs(title = "Bonificações Rebates")
+
+```
+
+
+
+<HR>
+
+<p>A bonificação em campanhas pontuais ao contrário tem tido grande variação em 12 meses mas nos últimos 3 meses tem caido.</p>
+
+```{r, echo=FALSE,fig.width = 11,fig.height =4}
+
+OUTRAS_CAMPANHAS <- read_sheet("1I7uZgi-fpRfX561y8u4cZWlq1hmwTO1YcZB1xxSjomo",
+                             sheet = "OUTRAS CAMPANHAS") 
+
+
+OUTRAS_CAMPANHAS %>% ggplot(.,aes(DATE,VALOR,fill=DATE)) + geom_bar(stat = "identity") + 
+  geom_text(aes(label=format(VALOR,big.mark=","),vjust=-0.1)) + 
+  scale_x_datetime(date_breaks = "month",date_labels = "%b/%Y",expand = c(0.01,0.01)) +
+  scale_y_continuous(expand = c(0,0),limits = c(0,15000)) + 
+  scale_fill_datetime(low="#99c5b1",high = "#004e2a") +
+  theme(axis.text.x = element_text(size = 14),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        panel.grid = element_blank(),
+        legend.position = "none"
+  )  + labs(title = "Bonificações em Outras Campanhas")
+
+
+```
+
+
+
+<HR>
+
+<div class=square style="--shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px, #f2f227 0px 0px 0px 1px;">
+
+Os pagamentos retroativo caíam em Junho.
+</div>
+
+```{r, echo=FALSE,fig.width = 11,fig.height =4}
+
+RETROATIVOS <- read_sheet("1I7uZgi-fpRfX561y8u4cZWlq1hmwTO1YcZB1xxSjomo",
+                               sheet = "RETROATIVOS") 
+
+
+RETROATIVOS %>% ggplot(.,aes(DATE,VALOR,fill=DATE)) + geom_bar(stat = "identity") + 
+  geom_text(aes(label=format(VALOR,big.mark=","),vjust=-0.1)) + 
+  scale_x_datetime(date_breaks = "month",date_labels = "%b/%Y",expand = c(0.01,0.01)) +
+  scale_y_continuous(expand = c(0,0),limits = c(0,15000)) + 
+  scale_fill_datetime(low="#b3b3b3",high = "#1a1a1a") +
+  theme(axis.text.x = element_text(size = 14),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        panel.grid = element_blank(),
+        legend.position = "none"
+  ) + labs(title = "Bonificações Retroativos")
+
+```
+
+
+
+
+

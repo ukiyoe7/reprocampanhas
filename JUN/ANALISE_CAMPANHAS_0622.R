@@ -1,5 +1,6 @@
 ## NOVO MODELO APURACAO CAMPANHAS
-## PERIODO DE REFERENCIA 0522
+## PERIODO DE REFERENCIA 06
+22
 ## SANDRO JAKOSKA
 
 ## GET LIBRARIES
@@ -18,8 +19,8 @@ con2 <- dbConnect(odbc::odbc(), "reproreplica")
 
 ## GERAL
 
-RESULT_GERAL <- read_sheet("1TIlc2UCW9Cz1wVyXe9Fp6WgopDOROJfDkdJUPSWwxek",
-                             sheet = "RESUMODADOS") 
+RESULT_GERAL <- read_sheet("1I7uZgi-fpRfX561y8u4cZWlq1hmwTO1YcZB1xxSjomo",
+                           sheet = "RESUMODADOS") 
 
 
 RESULT_GERAL %>% mutate(PROP=percent(BONUS/sum(BONUS)))%>% 
@@ -37,14 +38,14 @@ RESULT_GERAL %>% mutate(PROP=percent(BONUS/sum(BONUS)))%>%
         panel.grid = element_blank(),
         legend.position = "top",
         text = element_text(size=15)
-  ) + scale_fill_manual(values=c("#275f96","#328c62","#db884c","#8d8d8d"))
+  ) + scale_fill_manual(values=c("#275f96","#328c62","#db884c","#8d8d8d","#f0dc82"))
 
 
 
 ## INSIGNE 
 
-RESULT_INSIGNE <- read_sheet("1TIlc2UCW9Cz1wVyXe9Fp6WgopDOROJfDkdJUPSWwxek",
-                       sheet = "INSIGNE") 
+RESULT_INSIGNE <- read_sheet("1I7uZgi-fpRfX561y8u4cZWlq1hmwTO1YcZB1xxSjomo",
+                             sheet = "INSIGNE") 
 
 
 RESULT_INSIGNE %>% ggplot(.,aes(DATE,VALOR,fill=DATE)) + geom_bar(stat = "identity") + 
@@ -53,18 +54,39 @@ RESULT_INSIGNE %>% ggplot(.,aes(DATE,VALOR,fill=DATE)) + geom_bar(stat = "identi
   scale_y_continuous(expand = c(0,0),limits = c(0,22000)) + 
   scale_fill_datetime(low="#b7c9dc",high = "#092e53") +
   theme(axis.text.x = element_text(size = 14),
-                      axis.title.x = element_blank(),
-                      axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
         axis.text.y = element_blank(),
         axis.ticks.y = element_blank(),
         panel.grid = element_blank(),
         legend.position = "none"
-        ) + labs(title = "Bonificações Insigne")
+  ) + labs(title = "Bonificações Insigne")
+
+
+
+
+RESULT_INSIGNE2 <- read_sheet("1I7uZgi-fpRfX561y8u4cZWlq1hmwTO1YcZB1xxSjomo",
+                             sheet = "INSIGNE2") 
+
+
+RESULT_INSIGNE2  %>% ggplot(.,aes(DATE,VALOR,fill=TIPO)) + geom_bar(stat = "identity",position = "dodge2") + 
+  geom_text(aes(label=format(VALOR,big.mark=",")),position = position_dodge2(width = 100),vjust=-0.1,size=5) + 
+  scale_x_datetime(date_breaks = "month",date_labels = "%b/%Y",expand = c(0.01,0.01)) +
+  scale_y_continuous(expand = c(0,0),limits = c(0,200000)) +
+  scale_fill_manual(values = c("#6b8197","#092e53"))+
+  theme(axis.text.x = element_text(size = 14),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        panel.grid = element_blank(),
+        legend.position = "none"
+  ) + labs(title = "Bonificações Insigne")
 
 
 ## REBATES
 
-RESULT_REBATES <- read_sheet("1TIlc2UCW9Cz1wVyXe9Fp6WgopDOROJfDkdJUPSWwxek",
+RESULT_REBATES <- read_sheet("1I7uZgi-fpRfX561y8u4cZWlq1hmwTO1YcZB1xxSjomo",
                              sheet = "REBATES") 
 
 
@@ -85,8 +107,8 @@ RESULT_REBATES %>% ggplot(.,aes(DATE,VALOR,fill=DATE)) + geom_bar(stat = "identi
 
 ## OUTRAS CAMPANHAS
 
-OUTRAS_CAMPANHAS <- read_sheet("1TIlc2UCW9Cz1wVyXe9Fp6WgopDOROJfDkdJUPSWwxek",
-                             sheet = "OUTRAS CAMPANHAS") 
+OUTRAS_CAMPANHAS <- read_sheet("1I7uZgi-fpRfX561y8u4cZWlq1hmwTO1YcZB1xxSjomo",
+                               sheet = "OUTRAS CAMPANHAS") 
 
 
 OUTRAS_CAMPANHAS %>% ggplot(.,aes(DATE,VALOR,fill=DATE)) + geom_bar(stat = "identity") + 
@@ -107,8 +129,8 @@ OUTRAS_CAMPANHAS %>% ggplot(.,aes(DATE,VALOR,fill=DATE)) + geom_bar(stat = "iden
 ## RETROATIVOS
 
 
-RETROATIVOS <- read_sheet("1TIlc2UCW9Cz1wVyXe9Fp6WgopDOROJfDkdJUPSWwxek",
-                               sheet = "RETROATIVOS") 
+RETROATIVOS <- read_sheet("1I7uZgi-fpRfX561y8u4cZWlq1hmwTO1YcZB1xxSjomo",
+                          sheet = "RETROATIVOS") 
 
 
 RETROATIVOS %>% ggplot(.,aes(DATE,VALOR,fill=DATE)) + geom_bar(stat = "identity") + 

@@ -1135,6 +1135,9 @@ View(PAG_1225_0622)
 
 PAG_1225_0622 %>% summarize(v=sum(BONUS))
 
+range_write(LIST_1225_0622,ss="1yEv5jjVjcm33wO5pcrdNqzEy5UGQ2bTa39vjmeEzWSE",range = "A1",sheet="AJUSTE",reformat = FALSE)  
+
+
 
 ## =============================================================================================================         
 
@@ -2253,7 +2256,8 @@ PAG_ALL_0622 <-
   PAG_788_0622,
   PAG_325_0622,
   PAG_1676_0622,
-  PAG_G187_0622
+  PAG_G187_0622,
+  PAG_1225_0622
 ) 
 
 View(PAG_ALL_0622)
@@ -2281,7 +2285,8 @@ LIST_ALL_0622 <-  rbind(
   LIST_788_0622,
   LIST_325_0622,
   LIST_1676_0622,
-  LIST_G187_0622
+  LIST_G187_0622,
+  LIST_1225_0622
 ) 
 
 View(LIST_ALL_0622)
