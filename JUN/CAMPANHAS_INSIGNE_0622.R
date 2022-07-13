@@ -138,12 +138,18 @@ PAG_INSIGNE_0622_ALL <-  rbind(
 ) 
 
 range_write(PAG_INSIGNE_0622_ALL,ss="1yEv5jjVjcm33wO5pcrdNqzEy5UGQ2bTa39vjmeEzWSE",range = "A:P",sheet="INSIGNE",reformat = FALSE)  
-write.xlsx2(PAG_INSIGNE_0622_ALL,file = "C:\\Users\\Repro\\Documents\\R\\ADM\CAMPANHAS_REPRO\\JUN\\PAG_INSIGNE_0622_ALL.xlsx")
 
+CARTOES_0722 %>% .[,c(3,5)]
 
-filewd <-  paste0("C:\\Users\\Repro\\Documents\\R\\ADM\CAMPANHAS_REPRO\\JUN\\PAG_INSIGNE_0622_ALL.xlsx")
+insigne_emissao <- left_join(PAG_INSIGNE_0622_ALL %>% mutate(CPF=as.character(CPF)),CARTOES_0722,by="CPF") %>% View() 
+filter(is.na(`Número do Série`)) 
 
-write.xlsx(descontos_vlx, file = filewd,row.names=FALSE,sheetName = "VARILUX")
+View(insigne_emissao)
+
+insigne_emissao %>% summarize(v=sum(BONUS))
+
+PAGAMENTOS_ALELO_0722 %>% filter(.$Observações=='INSIGNE 0622') %>% summarize(v=sum(.$`Valor (R$)`))
+
 
 ## =============================================================================================================         
 

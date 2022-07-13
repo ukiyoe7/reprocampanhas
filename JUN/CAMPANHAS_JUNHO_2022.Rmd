@@ -64,7 +64,7 @@ hr {
   display: flex;
   justify-content: left;
   align-items: left;
-  margin-bottom:10px;
+  margin-bottom:30px;
   padding:10px;
   
 }
@@ -88,13 +88,13 @@ con2 <- dbConnect(odbc::odbc(), "reproreplica")
 </br>
 
 
-<p>Esse documento é uma análise visual da atividade em bonificações em cartões Alelo dos últimos 12 meses. </p>
+<p>Esse documento é uma análise visual da atividade de campanhas com bonificação em cartões Alelo. </p>
 
 <hr>
 
 <div class=square style="--shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px, #f2f227 0px 0px 0px 1px;">
 
-Diferente do mês anterior, a bonificação em rebates aumentou e alcançou a maior participação no total de bonificações. As bonificações Insigne caíram devido à regra de não bonificar pedidos digitados.
+<P>Diferente do mês anterior, a bonificação em rebates teve uma participação maior que as Insigne no total de bonificações, porém as bonificações Insigne foram menores que os rebates devido à regra de não bonificar pedidos digitados. Novas campanhas Varilux também foram adicionadas.</p>
 
 </div>
 
@@ -128,7 +128,7 @@ RESULT_GERAL %>% mutate(PROP=percent(BONUS/sum(BONUS)))%>%
 
 <div class=square style="--shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px, #f2f227 0px 0px 0px 1px;">
 
-A bonificação em campanhas Insigne tiveram uma queda nos últimos 3 meses. 
+As bonificações Insigne tiveram uma queda nos últimos 3 meses. 
 
 </div>
 
@@ -144,7 +144,7 @@ RESULT_INSIGNE %>% ggplot(.,aes(DATE,VALOR,fill=DATE)) + geom_bar(stat = "identi
   scale_x_datetime(date_breaks = "month",date_labels = "%b/%Y",expand = c(0.01,0.01)) +
   scale_y_continuous(expand = c(0,0),limits = c(0,22000)) + 
   scale_fill_datetime(low="#b7c9dc",high = "#092e53") +
-  theme(axis.text.x = element_text(size = 14),
+  theme(axis.text.x = element_text(size = 12),
                       axis.title.x = element_blank(),
                       axis.title.y = element_blank(),
         axis.text.y = element_blank(),
@@ -157,12 +157,11 @@ RESULT_INSIGNE %>% ggplot(.,aes(DATE,VALOR,fill=DATE)) + geom_bar(stat = "identi
 
 <div class=square style="--shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px, #f2f227 0px 0px 0px 1px;">
 
-No comparativo com as vendas de lentes Insigne, houve uma queda nas vendas de -1,90% e nas bonificações -16% porém não foram bonificados R$2500 por serem pedidos digitados portanto somando-se esse valor a variação seria -3%  
-
+No comparativo com as vendas de lentes Insigne deste ano, houve uma queda nas vendas de -1,90% e nas bonificações -16% porém uma vez que não foram bonificados R$2500 por serem pedidos digitados a variação em bonificações seria -3%.  
 </div>
 
 
-```{r}
+```{r echo=FALSE,fig.width = 8,fig.height =5}
 RESULT_INSIGNE2 <- read_sheet("1I7uZgi-fpRfX561y8u4cZWlq1hmwTO1YcZB1xxSjomo",
                              sheet = "INSIGNE2") 
 
@@ -170,9 +169,9 @@ RESULT_INSIGNE2 <- read_sheet("1I7uZgi-fpRfX561y8u4cZWlq1hmwTO1YcZB1xxSjomo",
 RESULT_INSIGNE2  %>% ggplot(.,aes(DATE,VALOR,fill=TIPO)) + geom_bar(stat = "identity",position = "dodge2") + 
   geom_text(aes(label=format(VALOR,big.mark=",")),position = position_dodge2(width =0.7),vjust=-0.1,size=5) + 
   scale_x_datetime(date_breaks = "month",date_labels = "%b/%Y",expand = c(0.01,0.01)) +
-  scale_y_continuous(expand = c(0,0),limits = c(0,200000)) +
+  scale_y_continuous(expand = c(0,0),limits = c(0,220000)) +
   scale_fill_manual(values = c("#6b8197","#092e53"))+
-  theme(axis.text.x = element_text(size = 14),
+  theme(axis.text.x = element_text(size = 12),
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
         axis.text.y = element_blank(),
@@ -188,7 +187,7 @@ RESULT_INSIGNE2  %>% ggplot(.,aes(DATE,VALOR,fill=TIPO)) + geom_bar(stat = "iden
 
 <div class=square style="--shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px, #f2f227 0px 0px 0px 1px;">
 
-A bonificação em rebates cresceu em Junho.
+As bonificações em rebates tiveram uma pequena variação positiva em Junho e estão concentradas em 3 clientes: Schroeder (setor5), Vital(setor2) e Dom Bosco(setor 3). Rebates estão correlacionados com o faturamento.
 
 </div>
 
@@ -203,7 +202,7 @@ RESULT_REBATES %>% ggplot(.,aes(DATE,VALOR,fill=DATE)) + geom_bar(stat = "identi
   scale_x_datetime(date_breaks = "month",date_labels = "%b/%Y",expand = c(0.01,0.01)) +
   scale_y_continuous(expand = c(0,0),limits = c(0,22000)) + 
   scale_fill_datetime(low="#eabb99",high = "#a34400") +
-  theme(axis.text.x = element_text(size = 13),
+  theme(axis.text.x = element_text(size = 12),
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
         axis.text.y = element_blank(),
@@ -215,12 +214,44 @@ RESULT_REBATES %>% ggplot(.,aes(DATE,VALOR,fill=DATE)) + geom_bar(stat = "identi
 ```
 
 
-
 <HR>
 
-<p>A bonificação em campanhas pontuais ao contrário tem tido grande variação em 12 meses mas nos últimos 3 meses tem caido.</p>
+<div class=square style="--shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px, #f2f227 0px 0px 0px 1px;">
 
-```{r, echo=FALSE,fig.width = 11,fig.height =4}
+As ofertas de campanhas Varilux cresceram nos últimos 3 meses. Em junho 8 clientes foram bonificadas.
+
+</div>
+
+```{r, echo=FALSE,fig.width = 5,fig.height =4}
+
+RESULT_VLX <- read_sheet("1I7uZgi-fpRfX561y8u4cZWlq1hmwTO1YcZB1xxSjomo",
+                             sheet = "VARILUX") 
+
+
+RESULT_VLX %>% ggplot(.,aes(DATE,VALOR,fill=DATE)) + geom_bar(stat = "identity") + 
+  geom_text(aes(label=format(VALOR,big.mark=","),vjust=-0.1)) + 
+  scale_x_datetime(date_breaks = "month",date_labels = "%b/%Y",expand = c(0.01,0.01)) +
+  scale_y_continuous(expand = c(0,0),limits = c(0,5000)) + 
+  scale_fill_datetime(low="#f7e9a6",high = "#f0dc82") +
+  theme(axis.text.x = element_text(size = 12),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        panel.grid = element_blank(),
+        legend.position = "none"
+  ) + labs(title = "Bonificações Varilux")
+
+```
+
+<div class=square style="--shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px, #f2f227 0px 0px 0px 1px;">
+
+<p>Campanhas pontuais com outros produtos caíram em Junho. Com um valor tão baixo a recomendação é que sejam encerradas.</p>
+
+</div>
+
+
+```{r, echo=FALSE,fig.width = 5,fig.height =4}
 
 OUTRAS_CAMPANHAS <- read_sheet("1I7uZgi-fpRfX561y8u4cZWlq1hmwTO1YcZB1xxSjomo",
                              sheet = "OUTRAS CAMPANHAS") 
@@ -229,9 +260,9 @@ OUTRAS_CAMPANHAS <- read_sheet("1I7uZgi-fpRfX561y8u4cZWlq1hmwTO1YcZB1xxSjomo",
 OUTRAS_CAMPANHAS %>% ggplot(.,aes(DATE,VALOR,fill=DATE)) + geom_bar(stat = "identity") + 
   geom_text(aes(label=format(VALOR,big.mark=","),vjust=-0.1)) + 
   scale_x_datetime(date_breaks = "month",date_labels = "%b/%Y",expand = c(0.01,0.01)) +
-  scale_y_continuous(expand = c(0,0),limits = c(0,15000)) + 
+  scale_y_continuous(expand = c(0,0),limits = c(0,5000)) + 
   scale_fill_datetime(low="#99c5b1",high = "#004e2a") +
-  theme(axis.text.x = element_text(size = 14),
+  theme(axis.text.x = element_text(size = 12),
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
         axis.text.y = element_blank(),
@@ -249,7 +280,7 @@ OUTRAS_CAMPANHAS %>% ggplot(.,aes(DATE,VALOR,fill=DATE)) + geom_bar(stat = "iden
 
 <div class=square style="--shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px, #f2f227 0px 0px 0px 1px;">
 
-Os pagamentos retroativo caíam em Junho.
+<p>Após uma alta no mês anterior devido às correções, as bonificações retroativas caíram em Junho. Apenas 3 participantes precisaram ser bonificados retroativamente.</p>
 </div>
 
 ```{r, echo=FALSE,fig.width = 11,fig.height =4}
@@ -261,9 +292,9 @@ RETROATIVOS <- read_sheet("1I7uZgi-fpRfX561y8u4cZWlq1hmwTO1YcZB1xxSjomo",
 RETROATIVOS %>% ggplot(.,aes(DATE,VALOR,fill=DATE)) + geom_bar(stat = "identity") + 
   geom_text(aes(label=format(VALOR,big.mark=","),vjust=-0.1)) + 
   scale_x_datetime(date_breaks = "month",date_labels = "%b/%Y",expand = c(0.01,0.01)) +
-  scale_y_continuous(expand = c(0,0),limits = c(0,15000)) + 
+  scale_y_continuous(expand = c(0,0),limits = c(0,10000)) + 
   scale_fill_datetime(low="#b3b3b3",high = "#1a1a1a") +
-  theme(axis.text.x = element_text(size = 14),
+  theme(axis.text.x = element_text(size = 12),
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
         axis.text.y = element_blank(),

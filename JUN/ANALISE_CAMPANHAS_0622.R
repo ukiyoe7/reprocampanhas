@@ -70,7 +70,7 @@ RESULT_INSIGNE2 <- read_sheet("1I7uZgi-fpRfX561y8u4cZWlq1hmwTO1YcZB1xxSjomo",
 
 
 RESULT_INSIGNE2  %>% ggplot(.,aes(DATE,VALOR,fill=TIPO)) + geom_bar(stat = "identity",position = "dodge2") + 
-  geom_text(aes(label=format(VALOR,big.mark=",")),position = position_dodge2(width = 100),vjust=-0.1,size=5) + 
+  geom_text(aes(label=format(VALOR,big.mark=",")),position = position_dodge2(width =0.7),vjust=-0.1,size=5) + 
   scale_x_datetime(date_breaks = "month",date_labels = "%b/%Y",expand = c(0.01,0.01)) +
   scale_y_continuous(expand = c(0,0),limits = c(0,200000)) +
   scale_fill_manual(values = c("#6b8197","#092e53"))+
