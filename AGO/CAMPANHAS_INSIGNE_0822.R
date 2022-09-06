@@ -245,7 +245,7 @@ PEDDTBAIXA,PEDORIGEM,TPCODIGO,PEDAUTORIZOU FROM PEDID P
    INNER JOIN FIS F ON P.FISCODIGO1=F.FISCODIGO
     INNER JOIN CLI C ON P.CLICODIGO=C.CLICODIGO
      WHERE PEDDTBAIXA
-     BETWEEN BETWEEN DATEADD(MONTH, -1, CURRENT_DATE - EXTRACT(DAY FROM CURRENT_DATE) + 1)
+      BETWEEN DATEADD(MONTH, -1, CURRENT_DATE - EXTRACT(DAY FROM CURRENT_DATE) + 1)
       AND CURRENT_DATE - EXTRACT(DAY FROM CURRENT_DATE) AND PEDSITPED<>'C' AND PEDORIGEM IN ('M','D')),
 
 AUX AS (SELECT PROCODIGO,PROCODIGO2,IIF(PROCODIGO2 IS NULL,PROCODIGO,PROCODIGO2)CHAVE FROM PRODU
@@ -283,3 +283,32 @@ PD.ID_PEDIDO,
 View(CP_INSIGNE_0822_DIGITADOS)
 
 range_write(CP_INSIGNE_0822_DIGITADOS,ss="1Ri4NCSv4zO1iSxj4AqzgQtxthf1qbnz4MSzz3OpVsRg",range = "A:P",sheet="PEDIDOS INSIGNE DIGITADOS",reformat = FALSE)  
+
+## CREDITO
+
+credito_cartoes_0922 <- left_join(PAG_INSIGNE_0822_ALL %>%
+                                     mutate(CPF=as.character(CPF)),CARTOES_0822,by="CPF") %>% 
+                                       .[,c(7,1,2,3)] %>% 
+                                         rename_at(., ~ c("Número de Série","CPF","Valor da Carga","Observacao"))
+
+
+
+## CARTOES ==========================================================================
+
+
+emissao_cartoes_0922 <- left_join(PAG_INSIGNE_0822_ALL %>% mutate(CPF=as.character(CPF)),CARTOES_0822,by="CPF") %>% 
+       left_join(.,PARTICIPANTES_CAMPANHA %>% mutate(CPF=as.character(CPF)),by="CPF") %>% 
+         filter(!is.na(NSERIE)) 
+
+
+emissao_cartoes_0922_min <- emissao_cartoes_0922 %>% .[,c(1,2,3,11:15)]
+
+  
+  range_write(emissao_cartoes_0922_min ,ss="10WezW63OwIO2-eKkYhhOQxbD9cu1ozLf8YF55gwCxdA",
+               range = "A1",sheet="DADOS",reformat = FALSE)  
+
+
+
+
+
+
