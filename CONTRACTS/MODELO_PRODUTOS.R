@@ -1,0 +1,96 @@
+
+## VLX SERIES TRANS 100
+dbGetQuery(con2,"
+SELECT PROCODIGO,
+        PRODESCRICAO FROM PRODU WHERE MARCODIGO=57 AND 
+         (PRODESCRICAO LIKE '%VARILUX X%' AND 
+           PRODESCRICAO LIKE '%TGEN8%') OR 
+           (PRODESCRICAO LIKE '%VARILUX E%' AND 
+             PRODESCRICAO LIKE '%TGEN8%') ") %>% View()
+
+## VLX DIGI TRANS 70
+dbGetQuery(con2,"
+SELECT PROCODIGO,
+        PRODESCRICAO FROM PRODU WHERE MARCODIGO=57 AND 
+         ((PRODESCRICAO LIKE '%COMFORT MAX%' AND
+            PRODESCRICAO LIKE '%TGEN8%') OR 
+             (PRODESCRICAO LIKE '%LIBERTY%' AND 
+               PRODESCRICAO LIKE '%TGEN8%') OR 
+               (PRODESCRICAO LIKE '%PHYSIO%' AND 
+                 PRODESCRICAO LIKE '%TGEN8%')) AND
+                  GR1CODIGO=15 AND PROSITUACAO='A'AND 
+                   PROCODIGO2 IS NULL") %>% View()
+
+## VLX TRAD TRANS 60
+dbGetQuery(con2,"
+SELECT PROCODIGO,
+        PRODESCRICAO FROM PRODU WHERE MARCODIGO=57 AND 
+         ((PRODESCRICAO LIKE '%COMFORT%' AND 
+           PRODESCRICAO LIKE '%TGEN8%') OR 
+           (PRODESCRICAO LIKE '%LIBERTY%' AND 
+             PRODESCRICAO LIKE '%TGEN8%') OR 
+               (PRODESCRICAO LIKE '%PHYSIO%' AND 
+                 PRODESCRICAO LIKE '%TGEN8%')) AND
+                  LEFT(PROCODIGO,2)='LP' AND 
+                   PROSITUACAO='A'AND 
+                    PROCODIGO2 IS NULL") %>% View()
+
+
+## KDK PGR TRANS 50
+dbGetQuery(con2,"
+SELECT PROCODIGO,
+        PRODESCRICAO FROM PRODU WHERE MARCODIGO=24 AND 
+         PRODESCRICAO LIKE '%TGEN8%' AND 
+          LEFT(PROCODIGO,2) IN ('LD','LP') AND 
+            PROSITUACAO='A'AND 
+             PROCODIGO2 IS NULL") %>% View()
+
+
+## VS DIGI TRANS 50
+dbGetQuery(con2,"
+SELECT PROCODIGO,PRODESCRICAO FROM PRODU WHERE  
+             (PRODESCRICAO LIKE '%TGEN8%') AND 
+               (PRODESCRICAO LIKE '%EYEZEN%' OR 
+                PRODESCRICAO LIKE '%KODAK SINGLE%')AND
+                 (PRODESCRICAO NOT LIKE '%SCL%') AND 
+                   GR2CODIGO=3 AND GR1CODIGO<>1 AND 
+                    PROSITUACAO='A'AND 
+                     PROCODIGO2 IS NULL") %>% View()
+
+
+## LA CRIZAL TRANS 35
+
+dbGetQuery(con2,"
+SELECT PROCODIGO,PRODESCRICAO FROM PRODU WHERE  
+             (PRODESCRICAO LIKE '%TGEN8%' AND 
+               PRODESCRICAO LIKE '%CRIZAL%') AND 
+                GR2CODIGO=3 AND 
+                 PROSITUACAO='A'AND 
+                  PROCODIGO2 IS NULL AND
+                   PROCODIGO2=IIF(PROCODIGO2 IS NULL,PROCODIGO,PROCODIGO2)") %>% View()
+
+
+## LA KDK NO REFLEZ 25
+dbGetQuery(con2,"
+SELECT PROCODIGO,PRODESCRICAO FROM PRODU WHERE  
+             (PRODESCRICAO LIKE '%TGEN8%' AND 
+               PRODESCRICAO LIKE '%NO REFLEX%') AND 
+                GR2CODIGO=3 AND PROSITUACAO='A'AND 
+                  PROCODIGO2=IIF(PROCODIGO2 IS NULL,PROCODIGO,PROCODIGO2)") %>% View()
+
+
+## LA KDK NO REFLEX TRANS 50 + 25
+dbGetQuery(con2,"
+SELECT PROCODIGO,PRODESCRICAO FROM PRODU WHERE  
+             (PRODESCRICAO LIKE '%TGEN8%') AND 
+               (PRODESCRICAO LIKE '%EYEZEN%' OR 
+                PRODESCRICAO LIKE '%KODAK SINGLE%')AND
+                 (PRODESCRICAO LIKE '%SCL%') AND 
+                   GR2CODIGO=3 AND 
+                    GR1CODIGO<>1 AND 
+                     PROSITUACAO='A'AND 
+                      PROCODIGO2 IS NULL AND
+                       ") %>% View()
+
+
+
