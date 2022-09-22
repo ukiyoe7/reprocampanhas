@@ -1,24 +1,14 @@
-## NOVO MODELO APURACAO CAMPANHAS
 ## PERIODO DE REFERENCIA 0822
 ## SANDRO JAKOSKA
-
-## =======================================================================================================  
-
-## LIBRARIES
 
 library(DBI)
 library(tidyverse)
 library(lubridate)
 library(googlesheets4)
 library(xlsx)
-
-## =======================================================================================================  
-
-## CONNECT DB
-
 con2 <- dbConnect(odbc::odbc(), "reproreplica")
 
-## ======================================================================================================= 
+## =======================================================================================================  
 
 ## GET CPF
 
@@ -286,26 +276,26 @@ range_write(CP_INSIGNE_0822_DIGITADOS,ss="1Ri4NCSv4zO1iSxj4AqzgQtxthf1qbnz4MSzz3
 
 ## CREDITO
 
-credito_cartoes_0922 <- left_join(PAG_INSIGNE_0822_ALL %>%
+CREDITO_CARTOES_INSIGNE_0922 <- left_join(PAG_INSIGNE_0822_ALL %>%
                                      mutate(CPF=as.character(CPF)),CARTOES_0822,by="CPF") %>% 
                                        .[,c(7,1,2,3)] %>% 
-                                         rename_at(., ~ c("Número de Série","CPF","Valor da Carga","Observacao"))
+                                         rename_at(1:4, ~ c("Número de Série","CPF","Valor da Carga","Observacao"))
+
+
+CREDITO_CARTOES_INSIGNE_0922_2 <- CREDITO_CARTOES_INSIGNE_0922 %>% filter(!is.na(`Número de Série`))
+
+
+write.csv(CREDITO_CARTOES_INSIGNE_0922_2,
+           file = "C:\\Users\\Repro\\Documents\\R\\ADM\\CAMPANHAS_REPRO\\AGO\\CREDITO_CARTOES_INSIGNE_0922.csv",
+           row.names=FALSE,quote = FALSE)
+
+CREDITO_CARTOES_INSIGNE_0922_2 %>% summarize(v=sum(`Valor da Carga`))
+
+range_write(credito_cartoes_0922_2 ,ss="1SeqsclAwq0XT2bYCShe7cUUEpja8LMf5HMWrnXsSWdM",
+            range = "A1",sheet="dados",reformat = FALSE)  
 
 
 
-## CARTOES ==========================================================================
-
-
-emissao_cartoes_0922 <- left_join(PAG_INSIGNE_0822_ALL %>% mutate(CPF=as.character(CPF)),CARTOES_0822,by="CPF") %>% 
-       left_join(.,PARTICIPANTES_CAMPANHA %>% mutate(CPF=as.character(CPF)),by="CPF") %>% 
-         filter(!is.na(NSERIE)) 
-
-
-emissao_cartoes_0922_min <- emissao_cartoes_0922 %>% .[,c(1,2,3,11:15)]
-
-  
-  range_write(emissao_cartoes_0922_min ,ss="10WezW63OwIO2-eKkYhhOQxbD9cu1ozLf8YF55gwCxdA",
-               range = "A1",sheet="DADOS",reformat = FALSE)  
 
 
 
