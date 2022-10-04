@@ -1,11 +1,10 @@
-## PERIODO DE REFERENCIA 0822
+## PERIODO DE REFERENCIA 0922
 ## SANDRO JAKOSKA
 
 library(DBI)
 library(tidyverse)
 library(lubridate)
 library(googlesheets4)
-library(xlsx)
 con2 <- dbConnect(odbc::odbc(), "reproreplica")
 
 ## =======================================================================================================  
@@ -33,9 +32,10 @@ PED AS (SELECT ID_PEDIDO,PEDCODIGO,P.CLICODIGO,CLINOMEFANT,GCLCODIGO,PEDDTEMIS,S
 PEDDTBAIXA,PEDORIGEM,TPCODIGO,PEDAUTORIZOU,PEDORIGEM ORIGEM FROM PEDID P
    INNER JOIN FIS F ON P.FISCODIGO1=F.FISCODIGO
     INNER JOIN CLI C ON P.CLICODIGO=C.CLICODIGO
-     WHERE PEDDTBAIXA
-     BETWEEN '01.09.2022'
-      AND 'TODAY' AND PEDSITPED<>'C' AND PEDORIGEM='W'),
+     WHERE 
+     PEDDTBAIXA
+       BETWEEN DATEADD(MONTH, -1, CURRENT_DATE - EXTRACT(DAY FROM CURRENT_DATE) + 1)
+       AND CURRENT_DATE - EXTRACT(DAY FROM CURRENT_DATE) AND PEDSITPED<>'C' AND PEDORIGEM='W'),
 
 AUX AS (SELECT PROCODIGO,PROCODIGO2,IIF(PROCODIGO2 IS NULL,PROCODIGO,PROCODIGO2)CHAVE FROM PRODU
 WHERE MARCODIGO=189 AND PROTIPO<>'T'),
@@ -127,7 +127,7 @@ PAG_INSIGNE_0922_ALL <-  rbind(
   PAG_INSIGNE_0922_213
 ) 
 
-range_write(PAG_INSIGNE_0922_ALL,ss="1Ri4NCSv4zO1iSxj4AqzgQtxthf1qbnz4MSzz3OpVsRg",range = "A:P",sheet="INSIGNE",reformat = FALSE)  
+range_write(PAG_INSIGNE_0922_ALL,ss="1tF9por2Q4mrXJvDm0hh8ta3T3EmSXkGqQ0Xc1K9efmY",range = "A:P",sheet="INSIGNE",reformat = FALSE)  
 
 
 
@@ -154,7 +154,7 @@ LIST_INSIGNE_0922_ALL <-  rbind(
   LIST_INSIGNE_0922_213
 ) 
 
-range_write(LIST_INSIGNE_0922_ALL,ss="1Ri4NCSv4zO1iSxj4AqzgQtxthf1qbnz4MSzz3OpVsRg",range = "A:P",sheet="PEDIDOS INSIGNE",reformat = FALSE)  
+range_write(LIST_INSIGNE_0922_ALL,ss="1tF9por2Q4mrXJvDm0hh8ta3T3EmSXkGqQ0Xc1K9efmY",range = "A:P",sheet="PEDIDOS INSIGNE",reformat = FALSE)  
 
 ## =======================================================================================================  
 
@@ -164,7 +164,7 @@ range_write(LIST_INSIGNE_0922_ALL,ss="1Ri4NCSv4zO1iSxj4AqzgQtxthf1qbnz4MSzz3OpVs
 
 LIST_INSIGNE_0922 %>% filter(is.na(CPF3))
 
-range_write(LIST_INSIGNE_0922 %>% filter(nchar(CPF3)<11 | is.na(CPF3)),ss="1Ri4NCSv4zO1iSxj4AqzgQtxthf1qbnz4MSzz3OpVsRg",range = "A1",sheet="NAO BONIFICAR",reformat = FALSE)  
+range_write(LIST_INSIGNE_0922 %>% filter(nchar(CPF3)<11 | is.na(CPF3)),ss="1tF9por2Q4mrXJvDm0hh8ta3T3EmSXkGqQ0Xc1K9efmY",range = "A1",sheet="NAO BONIFICAR",reformat = FALSE)  
 
 ## ======================================================================================================= 
 
@@ -273,7 +273,7 @@ PD.ID_PEDIDO,
 
 View(CP_INSIGNE_0922_DIGITADOS)
 
-range_write(CP_INSIGNE_0922_DIGITADOS,ss="1Ri4NCSv4zO1iSxj4AqzgQtxthf1qbnz4MSzz3OpVsRg",range = "A:P",sheet="PEDIDOS INSIGNE DIGITADOS",reformat = FALSE)  
+range_write(CP_INSIGNE_0922_DIGITADOS,ss="1tF9por2Q4mrXJvDm0hh8ta3T3EmSXkGqQ0Xc1K9efmY",range = "A:P",sheet="PEDIDOS INSIGNE DIGITADOS",reformat = FALSE)  
 
 ## CREDITO
 

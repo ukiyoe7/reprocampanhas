@@ -45,7 +45,7 @@ PEDDTBAIXA,PEDORIGEM,TPCODIGO,PEDAUTORIZOU,PEDORIGEM ORIGEM FROM PEDID P
     INNER JOIN CLI C ON P.CLICODIGO=C.CLICODIGO
      WHERE PEDDTBAIXA
      BETWEEN DATEADD(MONTH, -1, CURRENT_DATE - EXTRACT(DAY FROM CURRENT_DATE) + 1)
-      AND CURRENT_DATE - EXTRACT(DAY FROM CURRENT_DATE) AND PEDSITPED<>'C' AND PEDORIGEM='W'),
+      AND CURRENT_DATE - EXTRACT(DAY FROM CURRENT_DATE) AND PEDSITPED<>'C' AND PEDORIGEM='D'),
 
 AUX AS (SELECT PROCODIGO,PROCODIGO2,IIF(PROCODIGO2 IS NULL,PROCODIGO,PROCODIGO2)CHAVE FROM PRODU
 WHERE MARCODIGO=189 AND PROTIPO<>'T'),
@@ -83,7 +83,7 @@ PD.ID_PEDIDO,
 
 ## OBS
 
-OBS_SIG <- paste0("INSIGNE"," ",format(floor_date(Sys.Date()-months(1),"month"),"%m/%y"))
+OBS_SIG <- paste0("INSIGNE"," ",format(floor_date(Sys.Date()-months(1),"month"),"%m%y"))
 
 ## =======================================================================================================  
 
@@ -139,7 +139,7 @@ PAG_INSIGNE_0722_ALL <-  rbind(
 
 range_write(PAG_INSIGNE_0722_ALL,ss="1_bWLe-4X_c1A6-9zst6DoBd7N1RSlwwAs5yBOdQIaX0",range = "A:P",sheet="INSIGNE",reformat = FALSE)  
 
-CARTOES_0722 %>% .[,c(3,5)]
+
 
 insigne_emissao <- left_join(PAG_INSIGNE_0722_ALL %>% mutate(CPF=as.character(CPF)),CARTOES_0722,by="CPF") %>% View() 
 filter(is.na(`Número do Série`)) 
@@ -149,6 +149,8 @@ View(insigne_emissao)
 insigne_emissao %>% summarize(v=sum(BONUS))
 
 PAGAMENTOS_ALELO_0722 %>% filter(.$Observações=='INSIGNE 0722') %>% summarize(v=sum(.$`Valor (R$)`))
+
+left_join(PAG_INSIGNE_0722_ALL,CARTOES_ALELO,by="CPF")
 
 
 ## =============================================================================================================         
@@ -223,6 +225,7 @@ PAG_ALL_0722 %>% summarize(v=sum(BONUS))
 LIST_INSIGNE_0722_ALL %>% summarize(v=sum(BONUS))
 
 
+
 ## =======================================================================================================  
 
 ## SQL 
@@ -242,7 +245,7 @@ PEDDTBAIXA,PEDORIGEM,TPCODIGO,PEDAUTORIZOU FROM PEDID P
    INNER JOIN FIS F ON P.FISCODIGO1=F.FISCODIGO
     INNER JOIN CLI C ON P.CLICODIGO=C.CLICODIGO
      WHERE PEDDTBAIXA
-     BETWEEN '01.06.2022' AND '30.06.2022' AND PEDSITPED<>'C' AND PEDORIGEM='D'),
+     BETWEEN '01.07.2022' AND '31.07.2022' AND PEDSITPED<>'C' AND PEDORIGEM='D'),
 
 AUX AS (SELECT PROCODIGO,PROCODIGO2,IIF(PROCODIGO2 IS NULL,PROCODIGO,PROCODIGO2)CHAVE FROM PRODU
 WHERE MARCODIGO=189 AND PROTIPO<>'T'),
@@ -278,4 +281,4 @@ PD.ID_PEDIDO,
 
 View(CP_INSIGNE_0722_DIGITADOS)
 
-range_write(CP_INSIGNE_0722_DIGITADOS,ss="1yEv5jjVjcm33wO5pcrdNqzEy5UGQ2bTa39vjmeEzWSE",range = "A:P",sheet="PEDIDOS INSIGNE DIGITADOS NÃO BONIFICAR",reformat = FALSE)  
+range_write(CP_INSIGNE_0722_DIGITADOS,ss="1_bWLe-4X_c1A6-9zst6DoBd7N1RSlwwAs5yBOdQIaX0",range = "A:P",sheet="PEDIDOS INSIGNE DIGITADOS",reformat = FALSE)  

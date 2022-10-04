@@ -66,7 +66,6 @@ SELECT PROCODIGO,PRODESCRICAO FROM PRODU WHERE
                PRODESCRICAO LIKE '%CRIZAL%') AND 
                 GR2CODIGO=3 AND 
                  PROSITUACAO='A'AND 
-                  PROCODIGO2 IS NULL AND
                    PROCODIGO2=IIF(PROCODIGO2 IS NULL,PROCODIGO,PROCODIGO2)") %>% View()
 
 
@@ -83,13 +82,11 @@ SELECT PROCODIGO,PRODESCRICAO FROM PRODU WHERE
 dbGetQuery(con2,"
 SELECT PROCODIGO,PRODESCRICAO FROM PRODU WHERE  
              (PRODESCRICAO LIKE '%TGEN8%') AND 
-               (PRODESCRICAO LIKE '%EYEZEN%' OR 
-                PRODESCRICAO LIKE '%KODAK SINGLE%')AND
                  (PRODESCRICAO LIKE '%SCL%') AND 
-                   GR2CODIGO=3 AND 
-                    GR1CODIGO<>1 AND 
-                     PROSITUACAO='A'AND 
-                      PROCODIGO2 IS NULL AND
+                  GR1CODIGO<>17 UNION  
+                    SELECT PROCODIGO,PRODESCRICAO FROM PRODU WHERE  
+                      (PRODESCRICAO LIKE '%EXTRACTIVE%') AND
+                         GR1CODIGO<>17
                        ") %>% View()
 
 

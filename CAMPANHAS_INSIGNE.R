@@ -1,11 +1,10 @@
-## APURAÇÃO CAMPANHAS ABRIL 2022
+## CAMPANHAS INSIGNE 
 ## SANDRO JAKOSKA
 
 library(DBI)
 library(tidyverse)
 library(lubridate)
 con2 <- dbConnect(odbc::odbc(), "reproreplica")
-## CAMPANHAS INSIGNE 
 
 ##PARTICIPANTES
 clientes_insigne <- dbGetQuery(con2,"
@@ -13,7 +12,8 @@ clientes_insigne <- dbGetQuery(con2,"
                     FROM CLIEN C
                     LEFT JOIN GRUPOCLI GC ON GC.GCLCODIGO=C.GCLCODIGO
                     LEFT JOIN (SELECT CLICODIGO,E.ZOCODIGO,ZODESCRICAO SETOR FROM ENDCLI E
-                    LEFT JOIN (SELECT ZOCODIGO,ZODESCRICAO FROM ZONA)Z ON E.ZOCODIGO=Z.ZOCODIGO WHERE ENDFAT='S') ED ON C.CLICODIGO=ED.CLICODIGO)
+                    LEFT JOIN (SELECT ZOCODIGO,ZODESCRICAO FROM ZONA)Z ON E.ZOCODIGO=Z.ZOCODIGO WHERE ENDFAT='S') 
+                    ED ON C.CLICODIGO=ED.CLICODIGO)
            
                     SELECT C.CLICODIGO,CLINOMEFANT,GCLCODIGO,GCLNOME,SETOR FROM CLIPROMO C
                     LEFT JOIN CLI CL ON C.CLICODIGO=CL.CLICODIGO
@@ -21,9 +21,31 @@ clientes_insigne <- dbGetQuery(con2,"
 
 View(clientes_insigne)
 
+## GET CLIENTS FROM CONTROL ======================================================================
 
-range_write("1TO0CM5rnZgkesQUG444H8jqH2WRpUaVgvKilV-7uttY",data=clientes_insigne,sheet = "DADOS",
-            range = "A1",reformat = FALSE)
+CAMPANHAS_2022 <- read_sheet("1Tt7VLY1oHoirHduSaJoj62SlkyZCMVIZ9eHzLAhpqIY",
+                                     sheet = 'CAMPANHAS ATIVAS')
+
+View(CAMPANHAS_2022)
+
+#LOJAS
+CAMPANHAS_2022 %>% 
+   filter(`PRODUTO 1`=='INSIGNE') %>% 
+    select(CLICODIGO) %>%
+    filter(!is.na(CLICODIGO)) %>%
+     left_join(.,clientes_insigne,by="CLICODIGO") %>% 
+      View()
+
+#GRUPOS
+CAMPANHAS_2022 %>% 
+  filter(`PRODUTO 1`=='INSIGNE') %>% 
+  select(GCLCODIGO) %>%
+  filter(!is.na(GCLCODIGO)) %>%
+  left_join(.,clientes_insigne,by="GCLCODIGO") %>% 
+  View()
+
+
+##PARTICIPANTES =========================================================================================
 
 
 PARTICIPANTES_CAMPANHA <- read_sheet("1jUVGD4qsU0ZI7Z9Tgo8in_82KD_GA4xlseQs1gQPdCQ",

@@ -2670,7 +2670,7 @@ View(LIST_ALL_0822)
 
 LIST_ALL_0822 %>% summarize(v=sum(BONUS))
 
-range_write(LIST_ALL_0822,ss="1_bWLe-4X_c1A6-9zst6DoBd7N1RSlwwAs5yBOdQIaX0",range = "A:P",sheet="PEDIDOS",reformat = FALSE)  
+range_write(LIST_ALL_0822,ss="1Ri4NCSv4zO1iSxj4AqzgQtxthf1qbnz4MSzz3OpVsRg",range = "A:P",sheet="PEDIDOS",reformat = FALSE)  
 
 
 ## CREDITO CARTOES
@@ -2678,7 +2678,20 @@ range_write(LIST_ALL_0822,ss="1_bWLe-4X_c1A6-9zst6DoBd7N1RSlwwAs5yBOdQIaX0",rang
 CREDITO_CARTOES_1_0922 <- left_join(PAG_ALL_0822 %>%
                                     mutate(CPF=as.character(CPF)),CARTOES_0822,by="CPF") %>% 
   .[,c(7,1,2,3)] %>% 
-  rename_at(1:4, ~ c("Número de Série","CPF","Valor da Carga","Observacao"))
+  rename_at(1:4, ~ c("Número de Série","CPF","Valor da Carga","Observacao")) %>% filter(!is.na(`Número de Série`)) %>% .[-20,]
 
+
+CREDITO_CARTOES_1_0922 %>% summarize(v=sum(`Valor da Carga`))
+
+write.csv(CREDITO_CARTOES_1_0922,
+          file = "C:\\Users\\Repro\\Documents\\R\\ADM\\CAMPANHAS_REPRO\\AGO\\CREDITO_CARTOES_1_0922.csv",
+          row.names=FALSE,quote = FALSE)
+
+
+
+
+
+range_write(CREDITO_CARTOES_1_0922 ,ss="1SeqsclAwq0XT2bYCShe7cUUEpja8LMf5HMWrnXsSWdM",
+            range = "A1",sheet="dados",reformat = FALSE) 
 
 

@@ -29,6 +29,12 @@ CAMPANHAS <- read_sheet("1Tt7VLY1oHoirHduSaJoj62SlkyZCMVIZ9eHzLAhpqIY",
 View(CAMPANHAS)
 
 
+## BASE CPF
+
+left_join(BASE_CPF,cli,by="CLICODIGO") %>% View()
+
+
+
 ## CAMPANHAS LOJAS
 
 CAMPANHAS_LOJAS <- read_sheet("1Tt7VLY1oHoirHduSaJoj62SlkyZCMVIZ9eHzLAhpqIY",
@@ -49,7 +55,9 @@ cli <- dbGetQuery(con2,"SELECT DISTINCT C.CLICODIGO,
                                    WHERE CLICLIENTE='S'")
 
 
-left_join(CAMPANHAS_LOJAS ,cli,by="CLICODIGO") %>% left_join(.,PARTICIPANTES_CAMPANHA,by="CLICODIGO") %>% View()
+left_join(CAMPANHAS_LOJAS ,cli,by="CLICODIGO") %>% 
+          left_join(.,PARTICIPANTES_CAMPANHA,by="CLICODIGO") %>% 
+            left_join(.,BASE_CPF,by="CLICODIGO") %>% View()
 
 
 
@@ -77,6 +85,14 @@ cli <- dbGetQuery(con2,"SELECT DISTINCT C.CLICODIGO,
 
 left_join(CAMPANHAS_GRUPOS ,cli,by="GCLCODIGO") %>% left_join(.,PARTICIPANTES_CAMPANHA,by="CLICODIGO") %>% View()
 
+filter
+g37 <- cli %>% filter(GCLCODIGO==37)
+  
+  left_join(CAMPANHAS_GRUPOS ,cli,by="GCLCODIGO") %>% 
+          left_join(.,PARTICIPANTES_CAMPANHA,by="CLICODIGO") %>% filter(GCLCODIGO==37)
 
+
+range_write("1MvPuAKK2IpluVbkB65sfbaJGqXvlRRPUXFbwpf1b4Q4",data=g37,sheet = "DADOS",
+            range = "A1",reformat = FALSE)
 
 
