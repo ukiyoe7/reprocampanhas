@@ -75,13 +75,11 @@ PD.ID_PEDIDO,
 
 OBS_SIG <- paste0("INSIGNE"," ",format(floor_date(Sys.Date()-months(1),"month"),"%m%y"))
 
-## =======================================================================================================  
 
 ##REMOVE DUPLICATES
 
 CP_INSIGNE_0922_2 <- CP_INSIGNE_0922 %>% filter(CLICODIGO!=213)
 
-## =======================================================================================================  
 
 ## INTERSECTION
 
@@ -90,7 +88,6 @@ LIST_INSIGNE_0922 <- left_join(CP_INSIGNE_0922_2,BASE_CPF,by="CLICODIGO") %>%
   mutate(CPF3=ifelse(CPF2=='NULL',CPF,CPF2)) %>% 
   mutate(OBS=OBS_SIG) 
 
-## =======================================================================================================  
 
 ## PAY
 
@@ -98,8 +95,6 @@ PAG_INSIGNE_0922 <-  LIST_INSIGNE_0922 %>% filter(nchar(CPF3)==11) %>% group_by(
   summarize(BONUS=sum(BONUS)) %>% 
   mutate(OBS=OBS_SIG) %>%  rename(CPF=CPF3)
 
-
-## =======================================================================================================  
 
 ## FILTER DUPLICATED
 
@@ -127,21 +122,47 @@ PAG_INSIGNE_0922_ALL <-  rbind(
   PAG_INSIGNE_0922_213
 ) 
 
+View(PAG_INSIGNE_0922_ALL)
+
+
 range_write(PAG_INSIGNE_0922_ALL,ss="1tF9por2Q4mrXJvDm0hh8ta3T3EmSXkGqQ0Xc1K9efmY",range = "A:P",sheet="INSIGNE",reformat = FALSE)  
 
 
 
-insigne_emissao <- left_join(PAG_INSIGNE_0922_ALL %>% 
-                               mutate(CPF=as.character(CPF)),CARTOES_0922,by="CPF") 
-filter(is.na(`Número do Série`)) 
+## ======================================================================================================= 
 
-View(insigne_emissao)
+## CREDITO
 
-insigne_emissao %>% summarize(v=sum(BONUS))
+CREDITO_CARTOES_INSIGNE_0922 <- left_join(PAG_INSIGNE_0922_ALL %>%
+                                            mutate(CPF=as.character(CPF)),CARTOES_0922,by="CPF") 
 
-PAGAMENTOS_ALELO_0922 %>% filter(.$Observações=='INSIGNE 0722') %>% summarize(v=sum(.$`Valor (R$)`))
 
-left_join(PAG_INSIGNE_0922_ALL,CARTOES_ALELO,by="CPF")
+View(CREDITO_CARTOES_INSIGNE_0922)
+
+
+CREDITO_CARTOES_INSIGNE_0922_2 <- CREDITO_CARTOES_INSIGNE_0922 %>% 
+                                    filter(!is.na(NSERIE) & NSERIE!='030000103414415' & NSERIE!='030000094247944')
+
+View(CREDITO_CARTOES_INSIGNE_0922_2)
+
+CREDITO_CARTOES_INSIGNE_0922_3 <- CREDITO_CARTOES_INSIGNE_0922_2 %>% 
+                                   .[,c(7,1,2,3)] %>% 
+                                     rename_at(1:4, ~ c("Número de Série","CPF","Valor da Carga","Observacao"))
+
+
+View(CREDITO_CARTOES_INSIGNE_0922_3)  
+
+CREDITO_CARTOES_INSIGNE_0922_3 %>% summarize(v=sum(`Valor da Carga`))
+
+CREDITO_CARTOES_INSIGNE_0922_3 %>% .[duplicated(.$CPF),]
+
+
+write.csv2(CREDITO_CARTOES_INSIGNE_0922_3,
+          file = "C:\\Users\\Repro\\Documents\\R\\ADM\\CAMPANHAS_REPRO\\SET\\CREDITO_CARTOES_INSIGNE_0922.csv",
+          row.names=FALSE,quote = FALSE)
+
+
+
 
 
 ## =============================================================================================================         
@@ -215,6 +236,23 @@ PAG_ALL_0922 %>% summarize(v=sum(BONUS))
 
 LIST_INSIGNE_0922_ALL %>% summarize(v=sum(BONUS))
 
+## =======================================================================================================  
+## PARTICIPANTES
+
+PARTICIPANTES_CAMPANHA <- read_sheet("1jUVGD4qsU0ZI7Z9Tgo8in_82KD_GA4xlseQs1gQPdCQ",
+                                     sheet = 'DADOS') %>% rename(CLICODIGO=`CÓDIGO DA ÓTICA`) %>% 
+  mutate(CLICODIGO=as.numeric(CLICODIGO))
+
+
+left_join(PAG_INSIGNE_0922_ALL %>% 
+            mutate(CPF=as.character(CPF)),CARTOES_0922,by="CPF") %>% 
+              filter(!is.na(NSERIE) & NSERIE!='030000103414415') %>% View()
+
+
+
+
+
+
 
 
 ## =======================================================================================================  
@@ -275,25 +313,9 @@ View(CP_INSIGNE_0922_DIGITADOS)
 
 range_write(CP_INSIGNE_0922_DIGITADOS,ss="1tF9por2Q4mrXJvDm0hh8ta3T3EmSXkGqQ0Xc1K9efmY",range = "A:P",sheet="PEDIDOS INSIGNE DIGITADOS",reformat = FALSE)  
 
-## CREDITO
-
-CREDITO_CARTOES_INSIGNE_0922 <- left_join(PAG_INSIGNE_0922_ALL %>%
-                                            mutate(CPF=as.character(CPF)),CARTOES_0922,by="CPF") %>% 
-  .[,c(7,1,2,3)] %>% 
-  rename_at(1:4, ~ c("Número de Série","CPF","Valor da Carga","Observacao"))
+## =======================================================================================================  
 
 
-CREDITO_CARTOES_INSIGNE_0922_2 <- CREDITO_CARTOES_INSIGNE_0922 %>% filter(!is.na(`Número de Série`))
-
-
-write.csv(CREDITO_CARTOES_INSIGNE_0922_2,
-          file = "C:\\Users\\Repro\\Documents\\R\\ADM\\CAMPANHAS_REPRO\\AGO\\CREDITO_CARTOES_INSIGNE_0922.csv",
-          row.names=FALSE,quote = FALSE)
-
-CREDITO_CARTOES_INSIGNE_0922_2 %>% summarize(v=sum(`Valor da Carga`))
-
-range_write(credito_cartoes_0922_2 ,ss="1SeqsclAwq0XT2bYCShe7cUUEpja8LMf5HMWrnXsSWdM",
-            range = "A1",sheet="dados",reformat = FALSE)  
 
 
 
