@@ -20,14 +20,6 @@ con2 <- dbConnect(odbc::odbc(), "reproreplica")
 cli <- dbGetQuery(con2,"SELECT DISTINCT C.CLICODIGO,
                           CLINOMEFANT,
                            CLICNPJCPF,
-                            REPLACE(
-                             REPLACE(
-                              REPLACE(CLICNPJCPF,'.',''),'/',''),'-','') CNPJ,
-                               ENDCODIGO,
-                                CIDNOME,
-                                 C.GCLCODIGO,
-                                  GCLNOME,  
-                                   IIF(C.GCLCODIGO IS NULL,C.CLICODIGO || ' ' || CLINOMEFANT,'G' || C.GCLCODIGO || ' ' || GCLNOME) CLIENTE,
                                     SETOR
                                      FROM CLIEN C
                                       LEFT JOIN (SELECT CLICODIGO,E.ZOCODIGO,CIDNOME,ZODESCRICAO SETOR,ENDCODIGO FROM ENDCLI E
@@ -335,6 +327,10 @@ CP_TRANSITIONS_0922 %>% summarize(v=sum(VRVENDA))
 
 CP_TRANSITIONS_0922 %>% summarize(v=sum(BONUS))
 
+
+
+
+
 OBS_CP_TRANSITIONS_0922 <- paste0("TRANSITIONS ",CP_TRANSITIONS_0922,
                      " ",format(floor_date(Sys.Date()-months(1),"month"),"%m/%y")) 
 
@@ -356,10 +352,6 @@ PAG_CP_TRANSITIONS_0922 <- LIST_CP_TRANSITIONS_0922  %>% group_by(CPF) %>%
   summarize(BONUS=round(sum(BONUS),2)) %>% 
   mutate(OBS=OBS_CP_TRANSITIONS_0922 ) 
 
-View(PAG_4253_0622)
-
-
-PAG_4253_0622 %>% summarize(v=sum(BONUS))
 
 
 ## RESULTADO 
@@ -370,22 +362,70 @@ X1 <- CP_TRANSITIONS_0922 %>% group_by(CLICODIGO) %>% summarize(BONUS=sum(BONUS)
 CP_TRANSITIONS_0922 %>% .[duplicated(.$ID_PEDIDO),]
 
 
-RS_TRANSITIONS_0922 <- left_join(CLIENTES_TGEN8_0922_3,X1,by="CLICODIGO") %>% arrange(desc(BONUS))
+RS_TRANSITIONS_0922 <- left_join(X1,CLIENTES_TGEN8_0922_3,by="CLICODIGO") %>% arrange(desc(BONUS))
+
 
 write_sheet(RS_TRANSITIONS_0922,ss="14o0uE85YvKy0LMIhzgfG7DLiuGlxLR3ID_qK2kzl_fU",sheet = "RESUMO")
 
   write_sheet(CP_TRANSITIONS_0922,ss="14o0uE85YvKy0LMIhzgfG7DLiuGlxLR3ID_qK2kzl_fU",sheet = "PEDIDOS")
+  
+   write_sheet(RESULT_CAMPANHA_TRANSITIONS_P,ss="14o0uE85YvKy0LMIhzgfG7DLiuGlxLR3ID_qK2kzl_fU",sheet = "PARTICIPANTES")
 
 
+## PARTICIPANTES =========================================================================
 
-## PARTICIPANTES
 
+   
+   
+   
 PARTICIPANTES_CAMPANHA <- read_sheet("1jUVGD4qsU0ZI7Z9Tgo8in_82KD_GA4xlseQs1gQPdCQ",
                                      sheet = 'DADOS') %>% rename(CLICODIGO=`CÓDIGO DA ÓTICA`) %>% 
   mutate(CLICODIGO=as.numeric(CLICODIGO))
 
 
-participantes_transitions <- left_join(CLIENTES_TGEN8_0922_3,PARTICIPANTES_CAMPANHA, by="CLICODIGO") %>% .[,1:6] 
+participantes_transitions <- left_join(RS_TRANSITIONS_0922,PARTICIPANTES_CAMPANHA, by="CLICODIGO") %>% filter(BONUS>=150)
 
-write_sheet(participantes_transitions,ss="1-GoZYN4QGXT346g2mT0jTyAw_6TqKHQAa_0VS1_Fhms",sheet = "PARTICIPANTES")
+write_sheet(participantes_transitions ,ss="14o0uE85YvKy0LMIhzgfG7DLiuGlxLR3ID_qK2kzl_fU",sheet = "PARTICIPANTES3")
+
+
+
+## EMISSAO =========================================================================
+
+
+CAMPANHA_TRANS_ESSILOR_EMISS_CARTOES <-left_join(participantes_transitions %>%   
+                                          mutate(CPF=as.character(CPF)),CARTOES_1022,by="CPF") %>% 
+                                           filter(is.na(`Número do Série`)) %>% 
+                                            filter(CPF!='NULL') %>% 
+                                              filter(CLICODIGO!=397) %>% 
+                                                .[c(-3,-7,-15),] %>% 
+                                                  mutate(OBS='CAMPANHA TRANSITIONS ESSILOR 08_0922') %>%
+                                                    .[,c(7,2,19,5,1,6,8,9)] 
+ View(CAMPANHA_TRANS_ESSILOR_EMISS_CARTOES )
+ 
+ 
+ range_write("1aF4Z-yN83Wj_14LwNVe1ubBb-kWAAIE8Znvkaj7O-XI",data = CAMPANHA_TRANS_ESSILOR_EMISS_CARTOES,range = "A7",col_names = FALSE)
+ 
+
+
+ ## STATUS PAGAMENTOS =========================================================================
+
+
+
+ STATUS_PAG_TRANS <-left_join(RS_TRANSITIONS_0922,BASE_CPF,by="CLICODIGO") 
+ 
+
+PAG_ALELO <- left_join(ALELO_1022 %>% rename(NSERIE=4),CARTOES_1022 %>% rename(NSERIE=5),by="NSERIE") 
+
+View(PAG_ALELO)
+
+left_join(STATUS_PAG_TRANS %>% mutate(CPF=as.character(CPF)),
+          PAG_ALELO %>% mutate(CPF=as.character(CPF)),by="CPF") %>% View()
+
+
+ range_write("14o0uE85YvKy0LMIhzgfG7DLiuGlxLR3ID_qK2kzl_fU",
+              sheet = "PAGAMENTOS" ,
+               data = STATUS_PAG_TRANS ,
+                range = "A1") 
+ 
+
 

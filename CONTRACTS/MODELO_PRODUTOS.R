@@ -91,3 +91,31 @@ SELECT PROCODIGO,PRODESCRICAO FROM PRODU WHERE
 
 
 
+## blue cut
+dbGetQuery(con2,"
+SELECT PROCODIGO,PRODESCRICAO FROM PRODU WHERE  
+             PRODESCRICAO LIKE '%BLUE CUT%' AND 
+                 PROSITUACAO='A'AND 
+                   PROCODIGO2=IIF(PROCODIGO2 IS NULL,PROCODIGO,PROCODIGO2)
+                       ") %>% View()
+
+
+
+## Actualite
+dbGetQuery(con2,"
+SELECT PROCODIGO,
+        PRODESCRICAO FROM PRODU WHERE MARCODIGO=158 AND 
+             PRODESCRICAO LIKE '%TGEN8%' AND 
+                 PROSITUACAO='A'") %>% View()
+
+
+## Avance
+dbGetQuery(con2,"
+SELECT PROCODIGO,
+        PRODESCRICAO FROM PRODU WHERE MARCODIGO=159 AND 
+             PRODESCRICAO LIKE '%TGEN8%' AND 
+                 PROSITUACAO='A'") %>% View()
+
+
+
+

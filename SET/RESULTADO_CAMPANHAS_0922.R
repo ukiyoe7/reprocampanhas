@@ -2640,8 +2640,8 @@ CP_G37_0922 %>% summarize(v=sum(VRVENDA))
 
 CP_G37_0922 %>% summarize(v=sum(BONUS))
 
-OBS_G37_0922 <- paste0("UNIVERSAL ",CP_G37_0922 %>% 
-                    distinct(CLICODIGO)," ",format(floor_date(Sys.Date()-months(1),"month"),"%m/%y")) 
+OBS_G37_0922 <- paste0("BARBARA K G",CP_G37_0922 %>% 
+                    distinct(GCLCODIGO)," ",format(floor_date(Sys.Date()-months(1),"month"),"%m%y")) 
 
 
 ## JOIN CPF
@@ -2665,6 +2665,11 @@ View(PAG_G37_0922)
 
 
 PAG_G37_0922 %>% summarize(v=sum(BONUS))
+
+
+left_join(PAG_G37_0922 %>%  mutate(CPF=as.character(CPF)),CARTOES_1022,by="CPF") %>% View()
+
+
 
 
 ## =============================================================================================================         
@@ -2764,5 +2769,25 @@ write.csv2(CREDITO_CARTOES_0922_3,
            row.names=FALSE,quote = FALSE)
 
 
+left_join(CREDITO_CARTOES_0922_2,ALELO_1022 %>% rename(NSERIE=`Número de Série`),by="NSERIE") %>%.[,c(-4,-5,-6,-7,-8,-9)] %>% View()
 
+
+## ======================================================================================================= 
+
+## EMISSAO CARTAO
+
+
+EMISSAO_CARTOES_0922 <- CREDITO_CARTOES_0922 %>% 
+  filter(is.na(NSERIE)) %>% 
+  left_join(.,PARTICIPANTES_CAMPANHA %>% 
+              mutate(CPF=as.character(CPF)),by="CPF") %>%
+  .[,c(1:3,11:15)] %>% 
+  distinct(.$CPF,.keep_all=TRUE) %>%
+  .[,-9]  
+
+View(EMISSAO_CARTOES_0922)
+
+
+range_write("1aF4Z-yN83Wj_14LwNVe1ubBb-kWAAIE8Znvkaj7O-XI",data =EMISSAO_CARTOES_0922,
+            sheet = "DADOS",range = "A6",col_names = FALSE)
 

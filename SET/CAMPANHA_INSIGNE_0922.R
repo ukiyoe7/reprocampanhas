@@ -162,8 +162,22 @@ write.csv2(CREDITO_CARTOES_INSIGNE_0922_3,
           row.names=FALSE,quote = FALSE)
 
 
+## ======================================================================================================= 
+
+## EMISSAO CARTAO
 
 
+EMISSAO_CARTOES_INSIGNE_0922 <- CREDITO_CARTOES_INSIGNE_0922 %>% 
+                                 filter(is.na(NSERIE)) %>% 
+                                  left_join(.,PARTICIPANTES_CAMPANHA %>% 
+                                    mutate(CPF=as.character(CPF)),by="CPF") %>%
+                                     .[,c(1:3,11:15)] %>% 
+                                      distinct(.$CPF,.keep_all=TRUE) %>%
+                                        .[,-9]  
+
+
+range_write("1aF4Z-yN83Wj_14LwNVe1ubBb-kWAAIE8Znvkaj7O-XI",data =EMISSAO_CARTOES_INSIGNE_0922,
+            sheet = "DADOS",range = "A:H")
 
 ## =============================================================================================================         
 
@@ -174,6 +188,9 @@ LIST_INSIGNE_0922_ALL <-  rbind(
   LIST_INSIGNE_0922,
   LIST_INSIGNE_0922_213
 ) 
+
+View(LIST_INSIGNE_0922_ALL %>% .[,c(1,3,4,10,15)])
+
 
 range_write(LIST_INSIGNE_0922_ALL,ss="1tF9por2Q4mrXJvDm0hh8ta3T3EmSXkGqQ0Xc1K9efmY",range = "A:P",sheet="PEDIDOS INSIGNE",reformat = FALSE)  
 
