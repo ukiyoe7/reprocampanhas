@@ -51,6 +51,9 @@ CAMPANHAS_2022 %>%
 PARTICIPANTES_CAMPANHA <- read_sheet("1jUVGD4qsU0ZI7Z9Tgo8in_82KD_GA4xlseQs1gQPdCQ",
                                      sheet = 'DADOS')
 
+BASE_CPF <- read_sheet("1ShpVwae6DVAqYW3afQli7XggL_7cJrDiWeKw2luKpC0",
+                       sheet = 'DADOS') %>% select(CLICODIGO,CPF) 
+
 PARTICIPANTES_CAMPANHA %>% rename(CLICODIGO=`CÓDIGO DA ÓTICA`) %>% 
   mutate(CLICODIGO=as.numeric(CLICODIGO))  %>% View()
 
@@ -58,8 +61,9 @@ PARTICIPANTES_CAMPANHA %>% rename(CLICODIGO=`CÓDIGO DA ÓTICA`) %>%
 
 left_join(clientes_insigne,PARTICIPANTES_CAMPANHA %>% rename(CLICODIGO=`CÓDIGO DA ÓTICA`) %>% 
             mutate(CLICODIGO=as.numeric(CLICODIGO)) %>% 
-            select(CLICODIGO,CPF,`NOME COMPLETO DO PARTICIPANTE`) ,by="CLICODIGO") %>% View()
+            select(CLICODIGO,CPF,`NOME COMPLETO DO PARTICIPANTE`,`Carimbo de data/hora`) ,by="CLICODIGO") %>% 
+  left_join(.,BASE_CPF,by="CLICODIGO") %>% 
+  View()
 
 
-dbGetQuery(con2,"SELECT * FROM CLIPROMO") 
 
