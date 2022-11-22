@@ -37,7 +37,7 @@ FIS AS (SELECT FISCODIGO FROM TBFIS WHERE FISTPNATOP IN ('V','R','SR')),
                             FROM PEDID P
                              LEFT JOIN FIS ON P.FISCODIGO1=FIS.FISCODIGO
                               INNER JOIN CLI C ON P.CLICODIGO=C.CLICODIGO 
-                               WHERE PEDDTEMIS BETWEEN '01.01.2022' AND '31.08.2022' 
+                               WHERE PEDDTBAIXA BETWEEN '01.01.2022' AND '31.10.2022' 
                                 AND PEDSITPED<>'C') 
     
     
