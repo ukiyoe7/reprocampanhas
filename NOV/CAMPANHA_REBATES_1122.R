@@ -447,3 +447,10 @@ View(LIST_REBATES_1122)
 
 range_write(LIST_REBATES_1122,ss="1OTNU8i8AU_ot8NDgkPKfAd65-nrKUTDiS5Tqz9il3Vo",range = "A1",sheet="REBATES",reformat = FALSE)  
 
+
+
+## CREDITO CARTOES
+
+
+CREDITO_CARTOES_REBATES_1122 <- left_join(PAG_REBATES_1122 %>%
+                                            mutate(CPF=as.character(CPF)),CARTOES_1222,by="CPF") 
