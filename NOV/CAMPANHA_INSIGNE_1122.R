@@ -129,7 +129,8 @@ View(PAG_INSIGNE_1122_ALL)
 PAG_INSIGNE_1122_ALL %>% summarize(v=sum(BONUS))
 
 
-range_write(PAG_INSIGNE_1122_ALL,ss="1OTNU8i8AU_ot8NDgkPKfAd65-nrKUTDiS5Tqz9il3Vo",range = "A9",sheet="RESUMO",reformat = FALSE)  
+range_write(PAG_INSIGNE_1122_ALL,ss="1OTNU8i8AU_ot8NDgkPKfAd65-nrKUTDiS5Tqz9il3Vo",range = "A19",
+            col_names = FALSE,sheet="RESUMO",reformat = FALSE)  
 
 
 ## =============================================================================================================         
