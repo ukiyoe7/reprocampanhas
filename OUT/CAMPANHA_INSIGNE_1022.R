@@ -126,6 +126,9 @@ PAG_INSIGNE_1022_ALL <-  rbind(
 View(PAG_INSIGNE_1022_ALL)
 
 
+PAG_INSIGNE_1022_ALL %>% summarize(v=sum(BONUS))
+
+
 range_write(PAG_INSIGNE_1022_ALL,ss="1xwI5n5SP8AG_ALHI7YnIMvdpVyDBXQq--2tdWrCXUgQ",range = "A:P",sheet="INSIGNE",reformat = FALSE)  
 
 

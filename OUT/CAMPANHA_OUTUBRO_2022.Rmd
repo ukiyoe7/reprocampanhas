@@ -102,7 +102,7 @@ con2 <- dbConnect(odbc::odbc(), "reproreplica")
 
 <div class=square style="--shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px, #f2f227 0px 0px 0px 1px;">
 
-<P>As bonificações de OUTUBRO tiveram uma queda de -14.54% em relação ao mês anterior e um aumento de  38,76% em relação ao mesmo mês do ano passado. </br></p>
+<P>As bonificações de OUTUBRO tiveram uma queda de -14.54% em relação ao mês anterior e um aumento de  +38,76% em relação ao mesmo mês do ano passado. </br></p>
 
 </div>
 
@@ -136,7 +136,7 @@ RESULT_GERAL %>% mutate(PROP=percent(BONUS/sum(BONUS)))%>%
 
 <div class=square style="--shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px, #f2f227 0px 0px 0px 1px;">
 
-As bonificações Insigne diminuiram em Outubro -8% em relação ao mês anterior.
+As bonificações Insigne caíram -8% em Outubro em relação ao mês anterior.
 
 </div>
 
@@ -153,7 +153,7 @@ RESULT_INSIGNE %>%
   ggplot(.,aes(DATE,VALOR,fill=DATE)) + geom_bar(stat = "identity") + 
   geom_text(aes(label=format(VALOR,big.mark=","),vjust=-0.1)) + 
   scale_x_datetime(date_breaks = "month",date_labels = "%b/%Y",expand = c(0.01,0.01)) +
-  scale_y_continuous(expand = c(0,0),limits = c(0,22000)) + 
+  scale_y_continuous(expand = c(0,0),limits = c(0,25000)) + 
   scale_fill_datetime(low="#b7c9dc",high = "#092e53") +
   theme(axis.text.x = element_text(size = 14),
         axis.title.x = element_blank(),
@@ -172,7 +172,7 @@ Vendas Insigne caíram -17% em Outubro em relação ao mês anterior.
 
 
 
-```{r echo=FALSE,fig.width = 8,fig.height =5}
+```{r echo=FALSE,fig.width = 10,fig.height =5}
 RESULT_INSIGNE2 <- read_sheet("1iuh-YjQaRwJOCJR0l2_07IFkshclEBrks8DqbuXdzh0",
                               sheet = "INSIGNE2") 
 
@@ -202,7 +202,7 @@ RESULT_INSIGNE2  %>%
 
 <div class=square style="--shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px, #f2f227 0px 0px 0px 1px;">
 
-As bonificações em rebates cresceram 44,46% % em relação ao mês anterior. Mais 1 cliente foi adicionado, agora são 4.
+As bonificações em rebates cresceram +44,46% % em relação ao mês anterior. Vital + 22%, Dom Bosco + 1.6%, Schroeder -16%, Blueeye +81%  .
 
 </div>
 
@@ -233,7 +233,7 @@ RESULT_REBATES %>%
 <HR>
 
 <div class=square style="--shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px, #f2f227 0px 0px 0px 1px;">
-As bonificações em Varilux caíram -9,49% em Outurbro em relação ao mês anterior.     
+As bonificações em Varilux caíram -5% em Outubro em relação ao mês anterior.     
 </div>
 
 ```{r, echo=FALSE,fig.width = 6,fig.height =4}
@@ -246,7 +246,7 @@ RESULT_VLX %>% ggplot(.,aes(DATE,VALOR,fill=DATE)) + geom_bar(stat = "identity")
   geom_text(aes(label=format(VALOR,big.mark=","),vjust=-0.1)) + 
   scale_x_datetime(date_breaks = "month",date_labels = "%b/%Y",expand = c(0.01,0.01)) +
   scale_y_continuous(expand = c(0,0),limits = c(0,15000)) + 
-  scale_fill_datetime(low="#469771",high = "#328c62") +
+  scale_fill_datetime(low="#f4e6a7",high = "#f0dc82") +
   theme(axis.text.x = element_text(size = 12),
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
@@ -267,7 +267,7 @@ RESULT_VLX %>% ggplot(.,aes(DATE,VALOR,fill=DATE)) + geom_bar(stat = "identity")
 </div>
 
 
-```{r, echo=FALSE,fig.width = 5,fig.height =3}
+```{r, echo=FALSE,fig.width = 7,fig.height =3}
 
 OUTRAS_CAMPANHAS <- read_sheet("1iuh-YjQaRwJOCJR0l2_07IFkshclEBrks8DqbuXdzh0",
                                sheet = "OUTRAS CAMPANHAS") 
@@ -299,7 +299,7 @@ OUTRAS_CAMPANHAS %>%
 
 <div class=square style="--shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px, #f2f227 0px 0px 0px 1px;">
 
-<p>As bonificações retroativas cresceram 29% em Outubro comparado com o mês anterior.</p>
+<p>As bonificações retroativas cresceram +29% em Outubro comparado com o mês anterior.</p>
 </div>
 
 ```{r, echo=FALSE,fig.width = 11,fig.height =4}

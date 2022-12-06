@@ -185,12 +185,12 @@ RETROATIVOS %>%
 
 
 PAG_INSIGNE_1022_ALL
-
-left_join(ALELO1122,CARTOES1122, by="NSERIE") %>% 
-   mutate(CPF2=str_replace(.$CPF,"[.]","")) %>% 
-  mutate(CPF2=str_replace(.$CPF2,"[.]","")) %>% 
-  mutate(CPF2=str_replace(.$CPF2,"[-]","")) %>% 
   
-  left_join(.,PAG_INSIGNE_1022_ALL,by=c(CPF2=CPF)) %>% view()
+  left_join(ALELO1122,CARTOES1122, by="NSERIE") %>% 
+     mutate(CPF2=str_replace(.$CPF,"[.]","")) %>% 
+    mutate(CPF2=str_replace(.$CPF2,"[.]","")) %>% 
+    mutate(CPF2=str_replace(.$CPF2,"[-]","")) %>%  View()
+  
+  anti_join(PAG_INSIGNE_1022_ALL %>% mutate(CPF=as.character(CPF)),.,by=c("CPF"="CPF2")) %>% view()
 
 

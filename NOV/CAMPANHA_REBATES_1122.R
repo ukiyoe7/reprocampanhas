@@ -159,7 +159,7 @@ SELECT
              PEDAUTORIZOU,
               SUM(PDPQTDADE) QTD,
                SUM(PDPUNITLIQUIDO*PDPQTDADE)VRVENDA,
-                SUM(PDPUNITLIQUIDO*PDPQTDADE)*0.08 BONUS
+                SUM(PDPUNITLIQUIDO*PDPQTDADE)*0.05 BONUS
                  FROM
                  PDPRD
                  INNER JOIN PD ON PDPRD.ID_PEDIDO=PD.ID_PEDIDO
@@ -454,3 +454,36 @@ range_write(LIST_REBATES_1122,ss="1OTNU8i8AU_ot8NDgkPKfAd65-nrKUTDiS5Tqz9il3Vo",
 
 CREDITO_CARTOES_REBATES_1122 <- left_join(PAG_REBATES_1122 %>%
                                             mutate(CPF=as.character(CPF)),CARTOES_1222,by="CPF") 
+
+
+
+
+View(CREDITO_CARTOES_REBATES_1122)
+
+## EXCLUI SEM CARTAO
+
+
+CREDITO_CARTOES_REBATES_1122_2 <- CREDITO_CARTOES_REBATES_1122 %>% 
+  filter(!is.na(NSERIE))
+
+View(CREDITO_CARTOES_REBATES_1122_2)
+
+# CRIA BASE DE PAGAMENTO
+
+CREDITO_CARTOES_REBATES_1122_3 <- CREDITO_CARTOES_REBATES_1122_2 %>% 
+  .[,c(5,1,2,3)] %>% 
+  rename_at(1:4, ~ c("Número de Série","CPF","Valor da Carga","Observacao"))
+
+
+View(CREDITO_CARTOES_REBATES_1122_3)  
+
+CREDITO_CARTOES_REBATES_1122_3 %>% summarize(v=sum(`Valor da Carga`))
+
+CREDITO_CARTOES_REBATES_1122_3 %>% .[duplicated(.$CPF),]
+
+
+write.csv2(CREDITO_CARTOES_REBATES_1122_3,
+           file = "C:\\Users\\Repro\\Documents\\R\\ADM\\CAMPANHAS_REPRO\\NOV\\CREDITO_CARTOES_REBATES_1122.csv",
+           row.names=FALSE,quote = FALSE)
+
+
