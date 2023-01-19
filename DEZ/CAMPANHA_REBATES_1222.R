@@ -66,8 +66,7 @@ sum(CP_G139_1222 %>%  summarize(v=sum(VRVENDA)*0.07),CP_G139_1222 %>% summarize(
 
 ## OBS
 
-OBS_G139_1222 <- paste0("SCHROEDER ","G",CP_G139_1222 %>% 
-                     distinct(GCLCODIGO)," ",format(floor_date(Sys.Date()-months(1),"month"),"%m%y"))
+OBS_G139_1222 <- paste0("SCHROEDER G139 ","REBATE ",format(floor_date(Sys.Date()-months(1),"month"),"%m%y"))
 
 
 ### Cria Planilha identificação CPFs
@@ -97,13 +96,13 @@ View(CPF_G139_1222_CPF)
 
 #lista pedidos
 
-LIST_G139_1222 <- inner_join(CP_G139_1222,CPF_G139_1222_CPF,by="ID_PEDIDO") %>% 
+LIST_REBATES_G139_1222 <- inner_join(CP_G139_1222,CPF_G139_1222_CPF,by="ID_PEDIDO") %>% 
   mutate(OBS=OBS_G139_1222) %>% 
   .[,c(-12,-13,-14)]
 
-View(LIST_G139_1222)
+View(LIST_REBATES_G139_1222)
 
-LIST_G139_1222 %>% summarize(BONUS=sum(BONUS)) 
+LIST_REBATES_G139_1222 %>% summarize(BONUS=sum(BONUS)) 
 
 ### pagamentos
 
@@ -118,13 +117,13 @@ PAG_G139_1222_MONTADOR <- data.frame(CPF=c("88717020930"),BONUS=(CP_G139_1222 %>
                                                                    summarize(BONUS=sum(VRVENDA)*0.03))) 
 
 #PAGAMENTO
-PAG_G139_1222 <- rbind(PAG_G139_1222_VENDEDORAS,PAG_G139_1222_MONTADOR) %>%  
+PAG_REBATES_G139_1222 <- rbind(PAG_G139_1222_VENDEDORAS,PAG_G139_1222_MONTADOR) %>%  
   mutate(OBS=OBS_G139_1222) %>% 
   mutate(BONUS=round(BONUS,0))
 
-View(PAG_G139_1222)
+View(PAG_REBATES_G139_1222)
 
-PAG_G139_1222 %>% summarize(BONUS=sum(BONUS)) 
+PAG_REBATES_G139_1222 %>% summarize(BONUS=sum(BONUS)) 
 
 
 ## ============================================================================================
@@ -161,7 +160,7 @@ SELECT
              PEDAUTORIZOU,
               SUM(PDPQTDADE) QTD,
                SUM(PDPUNITLIQUIDO*PDPQTDADE)VRVENDA,
-                SUM(PDPUNITLIQUIDO*PDPQTDADE)*0.05 BONUS
+                SUM(PDPUNITLIQUIDO*PDPQTDADE)*0.08 BONUS
                  FROM
                  PDPRD
                  INNER JOIN PD ON PDPRD.ID_PEDIDO=PD.ID_PEDIDO
@@ -174,27 +173,29 @@ CP_849_1222 %>% summarize(v=sum(VRVENDA))
 CP_849_1222 %>% summarize(v=sum(VRVENDA)*0.08)
 
 ## OBS
-OBS_849_1222 <-paste0("VITAL ",CP_849_1222  %>% distinct(CLICODIGO)," ",format(floor_date(Sys.Date()-months(1),"month"),"%m%y"))
+OBS_849_1222 <-paste0("VITAL 849 ","REBATE "," ",format(floor_date(Sys.Date()-months(1),"month"),"%m%y"))
 
 
 
 ## LISTA PEDIDOS
-LIST_849_1222 <- CP_849_1222 %>% 
+LIST_REBATES_849_1222 <- CP_849_1222 %>% 
   mutate(CPF=rep(c("04455447911","06532582913"), length.out=nrow(CP_849_1222))) %>% 
   mutate(OBS=OBS_849_1222)
 
 
-View(LIST_849_1222)
+View(LIST_REBATES_849_1222)
 
 ## PAGAMENTOS 
 
-PAG_849_1222 <- LIST_849_1222 %>% group_by(CPF) %>% 
+## SUBTRAIDO 1.315 DE CADA PARTICIPANTE DEVIDO AO PAGAMENTO ACIMA FEITO NO MÊS PASSADO
+
+PAG_REBATES_849_1222 <- LIST_849_1222 %>% group_by(CPF) %>% 
   summarize(BONUS=sum(BONUS)) %>% as.data.frame() %>% 
-  mutate(BONUS=round(sum(BONUS)/2,0)) %>% 
+  mutate(BONUS=round(sum(BONUS)/2,0)-1315) %>% 
   mutate(OBS=OBS_849_1222) 
 
 
-View(PAG_849_1222)
+View(PAG_REBATES_849_1222)
 
 
 
@@ -249,29 +250,29 @@ View(PAG_849_1222)
 
 ## OBS
 
-OBS_157_1222 <- paste0("DOM BOSCO ","G",CP_157_1222  %>% 
-                    distinct(CLICODIGO)," ",format(floor_date(Sys.Date()-months(1),"month"),"%m%y"))
+OBS_157_1222 <- paste0("DOM BOSCO 157 ","REBATE ",format(floor_date(Sys.Date()-months(1),"month"),"%m%y"))
 
 
 ## JOIN CPF
 
-LIST_157_1222 <- inner_join(CP_157_1222,BASE_CPF,by="CLICODIGO") %>% 
+LIST_REBATES_157_1222 <- inner_join(CP_157_1222,BASE_CPF,by="CLICODIGO") %>% 
   rename(CPF1=CPF.x) %>% rename(CPF2=CPF.y) %>% 
   .[,-12] %>% 
   rename(.,"CPF"="CPF2") %>% 
   mutate(OBS=OBS_157_1222)
 
-View(LIST_157_1222)
+View(LIST_REBATES_157_1222)
 
-LIST_157_1222 %>% summarize(v=sum(BONUS))
+LIST_REBATES_157_1222 %>% summarize(v=sum(BONUS))
 
 
 ## PAY
 
-PAG_157_1222 <- LIST_157_1222 %>% group_by(CPF) %>% summarize(BONUS=round(sum(BONUS),0)) %>% 
-  mutate(OBS=OBS_157_1222) 
+PAG_REBATES_157_1222 <- LIST_157_1222 %>% group_by(CPF) %>% 
+      summarize(BONUS=round(sum(BONUS),0)) %>% 
+        mutate(OBS=OBS_157_1222) 
 
-View(PAG_157_1222)
+View(PAG_REBATES_157_1222)
 
 ### ===========================================================================================
 
@@ -307,7 +308,7 @@ SELECT
              PEDAUTORIZOU,
               SUM(PDPQTDADE) QTD,
                SUM(PDPUNITLIQUIDO*PDPQTDADE)VRVENDA,
-                SUM(PDPUNITLIQUIDO*PDPQTDADE)*0.04 BONUS
+                SUM(PDPUNITLIQUIDO*PDPQTDADE)*0.06 BONUS
                  FROM
                  PDPRD
                  INNER JOIN PD ON PDPRD.ID_PEDIDO=PD.ID_PEDIDO
@@ -320,39 +321,41 @@ View(CP_4253_1222)
 
 CP_4253_1222 %>% summarize(v=sum(VRVENDA))
 
-CP_4253_1222 %>% summarize(v=sum(VRVENDA)*0.04)
+CP_4253_1222 %>% summarize(v=sum(VRVENDA)*0.06)
 
 ## OBS
 
-OBS_4253_1222 <- paste0("BLUE EYE REBATE ",CP_4253_1222  %>% 
-                     distinct(CLICODIGO)," ",format(floor_date(Sys.Date()-months(1),"month"),"%m%y"))
+OBS_4253_1222 <- paste0("BLUE EYE 4253 ","REBATE "," ",format(floor_date(Sys.Date()-months(1),"month"),"%m%y"))
 
 
 ## JOIN CPF
 
-LIST_4253_1222 <- inner_join(CP_4253_1222,BASE_CPF,by="CLICODIGO") %>% 
+LIST_REBATES_4253_1222 <- inner_join(CP_4253_1222,BASE_CPF,by="CLICODIGO") %>% 
   rename(CPF1=CPF.x) %>% rename(CPF2=CPF.y) %>% 
   .[,-12] %>% 
   rename(.,"CPF"="CPF2") %>% 
   mutate(OBS=OBS_4253_1222)
 
-View(LIST_4253_1222)
+View(LIST_REBATES_4253_1222)
 
-LIST_4253_1222 %>% summarize(v=sum(BONUS))
+LIST_REBATES_4253_1222 %>% summarize(v=sum(BONUS))
 
 
 ## PAY
 
-PAG_4253_1222 <- LIST_4253_1222 %>% group_by(CPF) %>% summarize(BONUS=round(sum(BONUS),0)) %>% 
+PAG_REBATES_4253_1222 <- LIST_REBATES_4253_1222 %>% 
+                           group_by(CPF) %>% 
+                             summarize(BONUS=round(sum(BONUS),0)) %>% 
   mutate(OBS=OBS_4253_1222) 
 
-View(PAG_4253_1222)
+View(PAG_REBATES_4253_1222)
 
 
 
 ### ===========================================================================================
 
 ## SQL OTICA EDUARDO G91
+## SEM RESULTADO
 
 CP_G91_1222 <- dbGetQuery(con2,"
 WITH FIS AS (SELECT FISCODIGO FROM TBFIS WHERE FISTPNATOP IN ('V','SR','R')),
@@ -384,7 +387,7 @@ SELECT
              PEDAUTORIZOU,
               SUM(PDPQTDADE) QTD,
                SUM(PDPUNITLIQUIDO*PDPQTDADE)VRVENDA,
-                SUM(PDPUNITLIQUIDO*PDPQTDADE)*0.01 BONUS
+                SUM(PDPUNITLIQUIDO*PDPQTDADE)*0.00 BONUS
                  FROM
                  PDPRD
                  INNER JOIN PD ON PDPRD.ID_PEDIDO=PD.ID_PEDIDO
@@ -397,7 +400,7 @@ View(CP_G91_1222)
 
 CP_G91_1222 %>% summarize(v=sum(VRVENDA))
 
-CP_G91_1222 %>% summarize(v=sum(VRVENDA)*0.01)
+CP_G91_1222 %>% summarize(v=sum(VRVENDA)*0.00)
 
 ## OBS
 
@@ -407,23 +410,23 @@ OBS_G91_1222 <- paste0("OTICAS EDUARDO REBATE G",CP_G91_1222  %>%
 
 ## JOIN CPF
 
-LIST_G91_1222 <- inner_join(CP_G91_1222,BASE_CPF,by="CLICODIGO") %>% 
+LIST_REBATE_G91_1222 <- inner_join(CP_G91_1222,BASE_CPF,by="CLICODIGO") %>% 
   rename(CPF1=CPF.x) %>% rename(CPF2=CPF.y) %>% 
   .[,-12] %>% 
   rename(.,"CPF"="CPF2") %>% 
   mutate(OBS=OBS_G91_1222)
 
-View(LIST_G91_1222)
+View(LIST_REBATES_G91_1222)
 
-LIST_G91_1222 %>% summarize(v=sum(BONUS))
+LIST_REBATES_G91_1222 %>% summarize(v=sum(BONUS))
 
 
 ## PAY
 
-PAG_G91_1222 <- LIST_G91_1222 %>% group_by(CPF) %>% summarize(BONUS=round(sum(BONUS),0)) %>% 
+PAG_REBATES_G91_1222 <- LIST_G91_1222 %>% group_by(CPF) %>% summarize(BONUS=round(sum(BONUS),0)) %>% 
   mutate(OBS=OBS_G91_1222) 
 
-View(PAG_G91_1222)
+View(PAG_REBATES_G91_1222)
 
 
 ### ===========================================================================================
@@ -432,66 +435,69 @@ View(PAG_G91_1222)
 ## PAGAMENTOS
 
 
-PAG_REBATES <- rbind(PAG_G139_1222,
-                     PAG_849_1222,
-                     PAG_157_1222,
-                     PAG_4253_1222,
-                     PAG_G91_1222)
+PAG_REBATES_1222 <- rbind(PAG_REBATES_G139_1222,
+                     PAG_REBATES_849_1222,
+                     PAG_REBATES_157_1222,
+                     PAG_REBATES_4253_1222)
 
-View(PAG_REBATES)
-
-
-range_write(PAG_REBATES,ss="1nwmb96gjl_2cRuAGFDzzWFhzxKhaiInStQs6UXvbI6Q",range = "A1",sheet="RESUMO",reformat = FALSE)  
+View(PAG_REBATES_1222)
 
 
-
-LIST_REBATES <- rbind(LIST_G139,
-                           LIST_849,
-                           LIST_4253,
-                           LIST_G91_1222)
-
-View(LIST_REBATES)
+range_write(PAG_REBATES_1222,ss="1nwmb96gjl_2cRuAGFDzzWFhzxKhaiInStQs6UXvbI6Q",range = "A1",sheet="RESUMO",reformat = FALSE)  
 
 
-range_write(LIST_REBATES,ss="1nwmb96gjl_2cRuAGFDzzWFhzxKhaiInStQs6UXvbI6Q",range = "A1",sheet="REBATES",reformat = FALSE)  
+
+LIST_REBATES_1222 <- rbind(LIST_REBATES_G139_1222,
+                           LIST_REBATES_849_1222,
+                           LIST_REBATES_157_1222,
+                           LIST_REBATES_4253_1222)
+
+View(LIST_REBATES_1222)
+
+
+range_write(LIST_REBATES_1222,ss="1nwmb96gjl_2cRuAGFDzzWFhzxKhaiInStQs6UXvbI6Q",range = "A1",sheet="REBATES",reformat = FALSE)  
 
 
 
 ## CREDITO CARTOES
 
 
-CREDITO_CARTOES_REBATES <- left_join(PAG_REBATES %>%
-                                            mutate(CPF=as.character(CPF)),CARTOES_1222,by="CPF") 
+CREDITO_CARTOES_REBATES_1222 <- left_join(PAG_REBATES_1222 %>%
+                                            mutate(CPF=as.character(CPF)),CARTOES_0123 %>%  
+                                            filter(STATUS!="Cancelado") %>% 
+                                            mutate(CPF=sub("\\D+", '',CPF)) %>% 
+                                            mutate(CPF=sub("\\.", '',CPF)) %>% 
+                                            mutate(CPF=sub("\\-", '',CPF)),by="CPF") 
 
 
 
 
-View(CREDITO_CARTOES_REBATES)
+View(CREDITO_CARTOES_REBATES_1222)
 
 ## EXCLUI SEM CARTAO
 
 
-CREDITO_CARTOES_REBATES_2 <- CREDITO_CARTOES_REBATES %>% 
+CREDITO_CARTOES_REBATES_1222_2 <- CREDITO_CARTOES_REBATES_1222 %>% 
   filter(!is.na(NSERIE))
 
-View(CREDITO_CARTOES_REBATES_2)
+View(CREDITO_CARTOES_REBATES_1222_2)
 
 # CRIA BASE DE PAGAMENTO
 
-CREDITO_CARTOES_REBATES_3 <- CREDITO_CARTOES_REBATES_2 %>% 
-  .[,c(5,1,2,3)] %>% 
+CREDITO_CARTOES_REBATES_1222_3 <- CREDITO_CARTOES_REBATES_1222_2  %>% 
+  .[,c(4,1,2,3)] %>% 
   rename_at(1:4, ~ c("Número de Série","CPF","Valor da Carga","Observacao"))
 
 
-View(CREDITO_CARTOES_REBATES_3)  
+View(CREDITO_CARTOES_REBATES_1222_3)  
 
-CREDITO_CARTOES_REBATES_3 %>% summarize(v=sum(`Valor da Carga`))
+CREDITO_CARTOES_REBATES_1222_3 %>% summarize(v=sum(`Valor da Carga`))
 
-CREDITO_CARTOES_REBATES_3 %>% .[duplicated(.$CPF),]
+CREDITO_CARTOES_REBATES_1222_3 %>% .[duplicated(.$CPF),]
 
 
-write.csv2(CREDITO_CARTOES_REBATES_3,
-           file = "C:\\Users\\Repro\\Documents\\R\\ADM\\CAMPANHAS_REPRO\\NOV\\CREDITO_CARTOES_REBATES.csv",
+write.csv2(CREDITO_CARTOES_REBATES_1222_3,
+           file = "C:\\Users\\Repro\\Documents\\R\\ADM\\CAMPANHAS_REPRO\\DEZ\\CREDITO_CARTOES_REBATES.csv",
            row.names=FALSE,quote = FALSE)
 
 

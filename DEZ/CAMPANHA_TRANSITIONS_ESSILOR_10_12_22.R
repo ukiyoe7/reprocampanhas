@@ -303,112 +303,80 @@ CP_TRANSITIONS_10_12_22 %>% summarize(v=sum(BONUS))
 
 
 
-
-
 OBS_CP_TRANSITIONS_10_12_22 <- paste0("TRANSITIONS PONTOS ESSILOR OUT DEZ 22") 
 
 
-## JOIN CPF
+## PEDIDOS
 
-LIST_CP_TRANSITIONS_10_12_22   <- inner_join(CP_TRANSITIONS_10_12_22 ,BASE_CPF,by="CLICODIGO") %>% 
-  mutate(OBS=OBS_CP_TRANSITIONS_10_12_22 )
+LIST_CP_TRANSITIONS_10_12_22   <- CP_TRANSITIONS_10_12_22 %>%  mutate(OBS=OBS_CP_TRANSITIONS_10_12_22)
 
-View(LIST_CP_TRANSITIONS_10_12_22 )
-
-
-### PAY
-
-PAG_CP_TRANSITIONS_10_12_22 <- LIST_CP_TRANSITIONS_10_12_22  %>% group_by(CPF) %>% 
-  summarize(BONUS=round(sum(BONUS),2)) %>% 
-  mutate(OBS=OBS_CP_TRANSITIONS_10_12_22 ) 
+View(LIST_CP_TRANSITIONS_10_12_22)
 
 
+## RESULTADO GERAL
 
-## RESULTADO 
+RESULT_TRANSITIONS_10_12_22 <- CP_TRANSITIONS_10_12_22 %>% group_by(CLICODIGO) %>% summarize(BONUS=sum(BONUS))
 
 
-X1 <- CP_TRANSITIONS_10_12_22 %>% group_by(CLICODIGO) %>% summarize(BONUS=sum(BONUS))
+#VERIFICA IDs REPETIDOS
 
 CP_TRANSITIONS_10_12_22 %>% .[duplicated(.$ID_PEDIDO),]
 
 
-RS_TRANSITIONS_10_12_22 <- left_join(X1,CLIENTES_TGEN8_10_12_22_3,by="CLICODIGO") %>% arrange(desc(BONUS))
+# RESULTADO TODOS OS CLIENTES
+
+RS_TRANSITIONS_10_12_22_2 <- left_join(CLIENTES_TGEN8_10_12_22_3,RESULT_TRANSITIONS_10_12_22,by="CLICODIGO") %>% 
+                            arrange(desc(BONUS))
+
+View(RS_TRANSITIONS_10_12_22_2)
+
+range_write(RS_TRANSITIONS_10_12_22_2,ss="1955p2k0BD-_nq6aINotdhxheIm7q2df0HBIteB67ZDo",range = "A1",sheet = "RESULTADO TODOS")
 
 
-write_sheet(RS_TRANSITIONS_10_12_22,ss="1955p2k0BD-_nq6aINotdhxheIm7q2df0HBIteB67ZDo",sheet = "RESUMO")
+# SOMENTE ACIMA DE 150 
 
-write_sheet(CP_TRANSITIONS_10_12_22,ss="1955p2k0BD-_nq6aINotdhxheIm7q2df0HBIteB67ZDo",sheet = "PEDIDOS")
+RS_TRANSITIONS_10_12_22_3 <- left_join(CLIENTES_TGEN8_10_12_22_3,RESULT_TRANSITIONS_10_12_22,by="CLICODIGO") %>% 
+  arrange(desc(BONUS)) %>% filter(BONUS>=150)
 
-write_sheet(RESULT_CAMPANHA_TRANSITIONS_P,ss="1955p2k0BD-_nq6aINotdhxheIm7q2df0HBIteB67ZDo",sheet = "PARTICIPANTES")
+View(RS_TRANSITIONS_10_12_22_3)
+
+
+range_write(RS_TRANSITIONS_10_12_22_3,ss="1955p2k0BD-_nq6aINotdhxheIm7q2df0HBIteB67ZDo",
+            range = "A1",
+            sheet = "RESULTADO SOMENTE ALCANCE")
+
+
 
 
 ## PARTICIPANTES =========================================================================
 
 
 
+PARTICIPANTES_CAMPANHA <- read_sheet("",sheet = 'DADOS') %>% 
+                                       rename(CLICODIGO=`CÓDIGO DA ÓTICA`) %>% 
+                                         mutate(CLICODIGO=as.numeric(CLICODIGO))
 
 
-PARTICIPANTES_CAMPANHA <- read_sheet("",
-                                     sheet = 'DADOS') %>% rename(CLICODIGO=`CÓDIGO DA ÓTICA`) %>% 
-  mutate(CLICODIGO=as.numeric(CLICODIGO))
+CPF_TRANSITIONS_10_12_22_3 <- left_join(RS_TRANSITIONS_10_12_22_3,PARTICIPANTES_CAMPANHA %>% 
+                                                .[,c(2,3,4)], by="CLICODIGO") 
+
+View(CPF_TRANSITIONS_10_12_22_3)
 
 
-participantes_transitions <- left_join(RS_TRANSITIONS_10_12_22,PARTICIPANTES_CAMPANHA, by="CLICODIGO") %>% filter(BONUS>=150)
-
-write_sheet(participantes_transitions ,ss="",sheet = "PARTICIPANTES3")
-
-
-
-## EMISSAO =========================================================================
-
-
-CAMPANHA_TRANS_ESSILOR_EMISS_CARTOES <-left_join(participantes_transitions %>%   
-                                                   mutate(CPF=as.character(CPF)),CARTOES_1022,by="CPF") %>% 
-  filter(is.na(`Número do Série`)) %>% 
-  filter(CPF!='NULL') %>% 
-  filter(CLICODIGO!=397) %>% 
-  .[c(-3,-7,-15),] %>% 
-  mutate(OBS='CAMPANHA TRANSITIONS ESSILOR 08_0922') %>%
-  .[,c(7,2,19,5,1,6,8,9)] 
-View(CAMPANHA_TRANS_ESSILOR_EMISS_CARTOES )
+          
+CARTOES_TRANSITIONS_10_12_22_3 <- 
+  
+left_join(CPF_TRANSITIONS_10_12_22_3 %>% mutate(CPF=as.character(CPF)),
+  CARTOES_1222 %>% 
+   filter(STATUS != "Cancelado") %>% 
+    mutate(CPF=sub("\\D+", '',CPF)) %>% 
+     mutate(CPF=sub("\\.", '',CPF)) %>% 
+      mutate(CPF=sub("\\-", '',CPF)) %>% 
+       mutate(CPF=sub("\\,", '',CPF)) %>% .[,c(1,2,3)] , by="CPF")
 
 
-range_write("",data = CAMPANHA_TRANS_ESSILOR_EMISS_CARTOES,range = "A7",col_names = FALSE)
-
-
-
-## STATUS PAGAMENTOS =========================================================================
-
-
-
-STATUS_PAG_TRANS <-left_join(RS_TRANSITIONS_0922,BASE_CPF,by="CLICODIGO") 
-
-
-PAG_ALELO <- left_join(ALELO_10_12_22 %>% rename(NSERIE=4),CARTOES_10_12_22 %>% rename(NSERIE=5),by="NSERIE") 
-
-View(PAG_ALELO)
-
-left_join(STATUS_PAG_TRANS %>% mutate(CPF=as.character(CPF)),
-          PAG_ALELO %>% mutate(CPF=as.character(CPF)),by="CPF") %>% View()
-
-
-range_write("",
-            sheet = "PAGAMENTOS" ,
-            data = STATUS_PAG_TRANS ,
-            range = "A1") 
-
-
-## STATUS 2 =========================================================================
-
-
-read_sheet("",
-           sheet = 'PAGAMENTOS')  %>% 
-  filter(is.na(STATUS)) %>% 
-  left_join(.,PARTICIPANTES_CAMPANHA,by="CLICODIGO") %>% View()
-
-
-
-
-
+range_write(CARTOES_TRANSITIONS_10_12_22_3,ss="1955p2k0BD-_nq6aINotdhxheIm7q2df0HBIteB67ZDo",
+            range = "A1",
+            sheet = "CARTOES")
 
 

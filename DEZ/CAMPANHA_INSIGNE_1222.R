@@ -130,7 +130,7 @@ View(PAG_INSIGNE_1222_ALL)
 PAG_INSIGNE_1222_ALL %>% summarize(v=sum(BONUS))
 
 
-range_write(PAG_INSIGNE_1222_ALL,ss="1nwmb96gjl_2cRuAGFDzzWFhzxKhaiInStQs6UXvbI6Q",range = "A22",
+range_write(PAG_INSIGNE_1222_ALL,ss="1nwmb96gjl_2cRuAGFDzzWFhzxKhaiInStQs6UXvbI6Q",range = "A26",
             col_names = FALSE,sheet="RESUMO",reformat = FALSE)  
 
 
@@ -156,60 +156,44 @@ range_write(LIST_INSIGNE_1222_ALL,ss="1nwmb96gjl_2cRuAGFDzzWFhzxKhaiInStQs6UXvbI
 ## ======================================================================================================= 
 
 
-## 1 DADOS CARTOES
-
-CARTOES_1222  <- CARTOES_1222 %>%  mutate(CPF=sub("\\.", '',CPF)) %>% 
-  mutate(CPF=sub("\\-", '',CPF)) %>%
-  mutate(CPF=sub("\\.", '',CPF)) 
-
-
-## 2 ASSOCIA CARTOS COM PAGAMENTOS
+## CREDITO CARTOES
 
 CREDITO_CARTOES_INSIGNE_1222 <- left_join(PAG_INSIGNE_1222_ALL %>%
-                                            mutate(CPF=as.character(CPF)),CARTOES_1222,by="CPF") 
+                                            mutate(CPF=as.character(CPF)),CARTOES_0123 %>%  
+                                            filter(STATUS!="Cancelado") %>% 
+                                            mutate(CPF=sub("\\D+", '',CPF)) %>% 
+                                            mutate(CPF=sub("\\.", '',CPF)) %>% 
+                                            mutate(CPF=sub("\\-", '',CPF)),by="CPF") 
+
+
 
 View(CREDITO_CARTOES_INSIGNE_1222)
 
 
-## 2 EXCLUIR CANCELADOS 
+## EXCLUI SEM CARTAO
 
-030000094247944
-030000103414415
-
-CREDITO_CARTOES_INSIGNE_1222_3 <- CREDITO_CARTOES_INSIGNE_1222 %>% 
-  filter(NSERIE!="030000094247944") %>% 
-  filter(NSERIE!="030000103414415")
-
-View(CREDITO_CARTOES_INSIGNE_1222_3)
-
-CREDITO_CARTOES_INSIGNE_1222_2 %>% .[duplicated(.$CPF),] %>% View()
-
-# EXCLUI SEM CARTAO
-
-CREDITO_CARTOES_INSIGNE_1222_4 <- CREDITO_CARTOES_INSIGNE_1222_3 %>% 
+CREDITO_CARTOES_INSIGNE_1222_2 <- CREDITO_CARTOES_INSIGNE_1222 %>% 
   filter(!is.na(NSERIE))
 
-View(CREDITO_CARTOES_INSIGNE_1222_4)
+View(CREDITO_CARTOES_INSIGNE_1222_2)
 
 # CRIA BASE DE PAGAMENTO
 
-CREDITO_CARTOES_INSIGNE_1222_5 <- CREDITO_CARTOES_INSIGNE_1222_4 %>% 
-  .[,c(5,1,2,3)] %>% 
+CREDITO_CARTOES_INSIGNE_1222_3 <- CREDITO_CARTOES_INSIGNE_1222_2  %>% 
+  .[,c(4,1,2,3)] %>% 
   rename_at(1:4, ~ c("Número de Série","CPF","Valor da Carga","Observacao"))
 
 
-View(CREDITO_CARTOES_INSIGNE_1222_5)  
+View(CREDITO_CARTOES_INSIGNE_1222_3)  
 
-CREDITO_CARTOES_INSIGNE_1222_5 %>% summarize(v=sum(`Valor da Carga`))
+CREDITO_CARTOES_INSIGNE_1222_3 %>% summarize(v=sum(`Valor da Carga`))
 
-CREDITO_CARTOES_INSIGNE_1222_5 %>% .[duplicated(.$CPF),]
+CREDITO_CARTOES_INSIGNE_1222_3 %>% .[duplicated(.$CPF),]
 
 
-write.csv2(CREDITO_CARTOES_INSIGNE_1222_5,
-           file = "C:\\Users\\Repro\\Documents\\R\\ADM\\CAMPANHAS_REPRO\\NOV\\CREDITO_CARTOES_INSIGNE_1222.csv",
+write.csv2(CREDITO_CARTOES_INSIGNE_1222_3,
+           file = "C:\\Users\\Repro\\Documents\\R\\ADM\\CAMPANHAS_REPRO\\DEZ\\CREDITO_CARTOES_INSIGNE.csv",
            row.names=FALSE,quote = FALSE)
-
-
 ## ======================================================================================================= 
 
 ## EMISSAO CARTAO
@@ -320,7 +304,7 @@ PD.ID_PEDIDO,
 
 View(CP_INSIGNE_1222_DIGITADOS)
 
-range_write(CP_INSIGNE_1222_DIGITADOS,ss="1OTNU8i8AU_ot8NDgkPKfAd65-nrKUTDiS5Tqz9il3Vo",range = "A:P",sheet="INSIGNE DIGITADOS",reformat = FALSE)  
+range_write(CP_INSIGNE_1222_DIGITADOS,ss="1nwmb96gjl_2cRuAGFDzzWFhzxKhaiInStQs6UXvbI6Q",range = "A:P",sheet="INSIGNE DIGITADOS",reformat = FALSE)  
 
 ## =======================================================================================================  
 
