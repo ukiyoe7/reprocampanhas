@@ -347,31 +347,29 @@ View(CP_G91_0223)
 
 CP_G91_0223 %>% summarize(v=sum(VRVENDA))
 
-CP_G91_0223 %>% summarize(v=sum(VRVENDA)*0.00)
-
 
 ## GET RULES
-ctc_cp_157 <- range_read("1Oxon4HQST-MqCsQ4bH4rRQHBP-qV-UUGHxeAtrJvH7A",sheet = "PARAM")
+ctc_cp_G91 <- range_read("1P3379yxWc45IxGttmsGWK3uDM-Zc-BeVp2BQvsynbRg",sheet = "PARAM")
 
 
 ## SET RULES
-ctc_cp_157_bonus <- ctc_cp_157 %>% 
-  mutate(A=CP_157_0223 %>% summarize(v=sum(VRVENDA))) %>% 
+ctc_cp_G91_bonus <- ctc_cp_G91 %>% 
+  mutate(A=CP_G91_0223 %>% summarize(v=sum(VRVENDA))+20000) %>% 
   mutate(B=A-PARAM) %>%  filter(B>0) %>% 
   filter(B==min(B)) %>% .[,c(2)] 
 
-CP_157_0223_2 <- CP_157_0223 %>% mutate(BONUS=as.numeric(ctc_cp_157_bonus)*VRVENDA)
+CP_G91_0223_2 <- CP_G91_0223_2 %>% mutate(BONUS=as.numeric(ctc_cp_G91_bonus)*VRVENDA)
 
 
 ## OBS
 
-OBS_G91_0223 <- paste0("OTICAS EDUARDO REBATE G",CP_G91_0223  %>% 
+OBS_G91_0223 <- paste0("OTICAS EDUARDO REBATE G",CP_G91_0223_2  %>% 
                          distinct(GCLCODIGO)," ",format(floor_date(Sys.Date()-months(1),"month"),"%m%y"))
 
 
 ## JOIN CPF
 
-LIST_REBATES_G91_0223 <- inner_join(CP_G91_0223,BASE_CPF,by="CLICODIGO") %>% 
+LIST_REBATES_G91_0223 <- inner_join(CP_G91_0223_2,BASE_CPF,by="CLICODIGO") %>% 
   rename(CPF1=CPF.x) %>% rename(CPF2=CPF.y) %>% 
   .[,-12] %>% 
   rename(.,"CPF"="CPF2") %>% 
@@ -481,7 +479,8 @@ View(PAG_REBATES_4253_0223)
 
 PAG_REBATES_0223 <- rbind(PAG_REBATES_G139_0223,
                           PAG_REBATES_849_0223,
-                          PAG_REBATES_157_0223)
+                          PAG_REBATES_157_0223,
+                          PAG_REBATES_4253_0223)
 
 View(PAG_REBATES_0223)
 
