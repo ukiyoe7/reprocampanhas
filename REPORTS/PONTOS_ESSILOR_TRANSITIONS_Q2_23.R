@@ -35,17 +35,21 @@ cli <- dbGetQuery(con2, statement = read_file('C:\\Users\\Repro\\Documents\\R\\A
 
 ## SUMMARY
 
-RESULT_TRANS_Q2 <-
+RESULT_TRANS_QTD_Q2 <-
   CP_TRANSITIONS_MAI23 %>%  group_by(CLICODIGO) %>% summarize(QTD=sum(QTD))
 
-RESULT_TRANS_Q2_2 <-
-  left_join(CLIENTES_TGEN8_MAI23 %>% select(CLICODIGO),RESULT_TRANS_Q2,by="CLICODIGO") %>% 
+RESULT_TRANS_BONUS_Q2 <-
+  CP_TRANSITIONS_MAI23 %>%  group_by(CLICODIGO) %>% summarize(BONUS=sum(BONUS))
+
+RESULT_TRANS_Q2 <-
+  left_join(CLIENTES_TGEN8_MAI23 %>% select(CLICODIGO),RESULT_TRANS_QTD_Q2,by="CLICODIGO") %>%
+   left_join(.,RESULT_TRANS_BONUS_Q2,by="CLICODIGO") %>%
   left_join(.,cli %>% select(CLICODIGO,CLINOMEFANT,SETOR),by="CLICODIGO")%>% 
-  .[,c(1,3,4,2)] %>% arrange(desc(QTD))
+  .[,c(1,3,4,2)] %>% arrange(desc(BONUS)) %>% .[,c(1,3,4,2)]
 
 ## WRITE GOOGLE
 
-range_write(ss="1eUdMe2la9Fkrs8tx0bWZneCJAUPoBwT3QURgni6b3DQ",data = RESULT_TRANS_Q2_2,range = "A:D",sheet = "RESUMO",reformat = FALSE)
+range_write(ss="1eUdMe2la9Fkrs8tx0bWZneCJAUPoBwT3QURgni6b3DQ",data = RESULT_TRANS_Q2,range = "A:D",sheet = "RESUMO",reformat = FALSE)
 
 range_write(ss="1eUdMe2la9Fkrs8tx0bWZneCJAUPoBwT3QURgni6b3DQ",data = CP_TRANSITIONS_MAI23 ,range = "A:K",sheet = "PEDIDOS",reformat = FALSE)
 
