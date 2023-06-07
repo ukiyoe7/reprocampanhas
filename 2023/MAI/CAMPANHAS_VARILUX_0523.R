@@ -1025,7 +1025,7 @@ PAG_VARILUX_4576_0523 %>% summarize(v=sum(BONUS))
 
 
 
-## PAGAMENTOS FINAL   =============================================================================================================       
+## PAGAMENTOS  =============================================================================================================       
 
 
 PAG_VARILUX_0523 <-  
@@ -1035,14 +1035,15 @@ PAG_VARILUX_0523 <-
     PAG_VARILUX_1225_0523,
     PAG_VARILUX_360_0523,
     PAG_VARILUX_4576_0523
-  ) %>% mutate(PGTO_MINIMO=if_else(BONUS>=100,"S","N"))
+  ) %>% mutate(PGTO_MINIMO=if_else(BONUS>=100,"S","N")) %>% 
+   mutate(TIPO="VARILUX")
 
 
 View(PAG_VARILUX_0523)
 
 PAG_VARILUX_0523 %>% summarize(v=sum(BONUS))
 
-range_write(PAG_VARILUX_0523,ss="1a-u9ZH9RLQnQGrCUHzDRpao0EEuzhfSlBfgHAn27ry8",range = "A56",
+range_write(PAG_VARILUX_0523,ss="1a-u9ZH9RLQnQGrCUHzDRpao0EEuzhfSlBfgHAn27ry8",range = "A57",
             col_names = FALSE,sheet="RESUMO",reformat = FALSE)  
 
 
@@ -1072,7 +1073,7 @@ range_write(LIST_VARILUX_0523,ss="1a-u9ZH9RLQnQGrCUHzDRpao0EEuzhfSlBfgHAn27ry8",
 
 CREDITO_CARTOES_VARILUX_0523 <- left_join(PAG_VARILUX_0523 %>%
                                             mutate(CPF=as.character(CPF)),
-                                          CARTOES_0523 %>% filter(STATUS!="Cancelado") %>% 
+                                          CARTOES_0706 %>% filter(STATUS!="Cancelado") %>% 
                                             mutate(CPF=sub("\\D+", '',CPF)) %>% 
                                             mutate(CPF=sub("\\.", '',CPF)) %>% 
                                             mutate(CPF=sub("\\-", '',CPF)),by="CPF") 
@@ -1080,15 +1081,18 @@ CREDITO_CARTOES_VARILUX_0523 <- left_join(PAG_VARILUX_0523 %>%
 
 View(CREDITO_CARTOES_VARILUX_0523)
 
-
+## EXCLUI SEM CARTAO
 
 CREDITO_CARTOES_VARILUX_0523_2 <- CREDITO_CARTOES_VARILUX_0523 %>% 
-  filter(!is.na(NSERIE))
+  filter(!is.na(NSERIE)) %>% filter(PGTO_MINIMO=='S')
 
 View(CREDITO_CARTOES_VARILUX_0523_2)
 
+
+## CRIA BASE DE PAGAMENTO
+
 CREDITO_CARTOES_VARILUX_0523_3 <- CREDITO_CARTOES_VARILUX_0523_2 %>% 
-  .[,c(4,1,2,3)] %>% 
+  .[,c(6,1,2,3)] %>% 
   rename_at(1:4, ~ c("Número de Série","CPF","Valor da Carga","Observacao"))
 
 
@@ -1100,11 +1104,28 @@ CREDITO_CARTOES_VARILUX_0523_3 %>% .[duplicated(.$CPF),]
 
 
 write.csv2(CREDITO_CARTOES_VARILUX_0523_3,
-           file = "C:\\Users\\Repro\\Documents\\R\\ADM\\CAMPANHAS_REPRO\\2023\\ABR\\CREDITO_CARTOES_VARILUX_0523.csv",
+           file = "C:\\Users\\Repro\\Documents\\R\\ADM\\CAMPANHAS_REPRO\\2023\\MAI\\CREDITO_CARTOES_VARILUX_0523.csv",
            row.names=FALSE,quote = FALSE)
 
 
 left_join(CREDITO_CARTOES_0523_2,ALELO_0523 %>% rename(NSERIE=`Número de Série`),by="NSERIE") %>%.[,c(-4,-5,-6,-7,-8,-9)] %>% View()
+
+
+## NAO BONIFICADOS ============================================================
+
+NAO_BONIFICADOS_VARILUX_0523 <-
+  
+  left_join(CREDITO_CARTOES_VARILUX_0523 %>% 
+              filter(!is.na(NSERIE)) %>% 
+              filter(PGTO_MINIMO=='N'),BASE_CPF %>% mutate(CPF=as.character(CPF)),by="CPF") %>% 
+  left_join(.,cli %>% select(CLICODIGO,SETOR),by="CLICODIGO") %>% 
+  .[,c(12,13,1,2,3)] 
+
+
+range_write("1a-u9ZH9RLQnQGrCUHzDRpao0EEuzhfSlBfgHAn27ry8",data =NAO_BONIFICADOS_VARILUX_0523,
+            sheet = "NAO BONIFICADOS",range = "A12")
+
+
 
 
 ## EMISSAO CARTAO ======================================================================================================= 

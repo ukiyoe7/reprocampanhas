@@ -497,7 +497,9 @@ REBATE_PAGAMENTO_0523 <- rbind(REBATE_PAGAMENTO_G139_0523,
                           REBATE_PAGAMENTO_4253_0523,
                           REBATE_PAGAMENTO_1830_0523,
                           REBATE_PAGAMENTO_G78_0523,
-                          REBATE_PAGAMENTO_772_0523) %>% mutate(PGTO_MINIMO=if_else(BONUS>=100,"S","N"))
+                          REBATE_PAGAMENTO_772_0523) %>% 
+  mutate(PGTO_MINIMO=if_else(BONUS>=100,"S","N")) %>% 
+  mutate(TIPO="REBATE")
 
 View(REBATE_PAGAMENTO_0523)
 
@@ -523,6 +525,51 @@ View(REBATE_LISTAGEM_0523)
 range_write(REBATE_LISTAGEM_0523,ss="1a-u9ZH9RLQnQGrCUHzDRpao0EEuzhfSlBfgHAn27ry8",range = "A1",sheet="REBATES",reformat = FALSE)  
 
 
+## CREDITO  =========================================================================
+
+
+## CREDITO CARTOES
+
+
+CREDITO_CARTOES_REBATES_0523 <- left_join(REBATE_PAGAMENTO_0523 %>%
+                                            mutate(CPF=as.character(CPF)),CARTOES_0706 %>%  
+                                            filter(STATUS!="Cancelado") %>% 
+                                            mutate(CPF=sub("\\D+", '',CPF)) %>% 
+                                            mutate(CPF=sub("\\.", '',CPF)) %>% 
+                                            mutate(CPF=sub("\\-", '',CPF)),by="CPF") 
+
+View(CREDITO_CARTOES_REBATES_0523)
+
+
+## EXCLUI SEM CARTAO
+
+
+CREDITO_CARTOES_REBATES_0523_2 <- CREDITO_CARTOES_REBATES_0523 %>% 
+  filter(!is.na(NSERIE)) %>% filter(!is.na(BONUS)) %>% filter(PGTO_MINIMO)
+
+View(CREDITO_CARTOES_REBATES_0523_2)
+
+
+# CRIA BASE DE PAGAMENTO
+
+CREDITO_CARTOES_REBATES_0523_3 <- CREDITO_CARTOES_REBATES_0523_2  %>% 
+  .[,c(6,1,2,3)] %>% 
+  rename_at(1:4, ~ c("Número de Série","CPF","Valor da Carga","Observacao"))
+
+
+View(CREDITO_CARTOES_REBATES_0523_3)  
+
+CREDITO_CARTOES_REBATES_0523_3 %>% summarize(v=sum(`Valor da Carga`))
+
+CREDITO_CARTOES_REBATES_0523_3 %>% .[duplicated(.$CPF),]
+
+
+write.csv2(CREDITO_CARTOES_REBATES_0523_3,
+           file = "C:\\Users\\Repro\\Documents\\R\\ADM\\CAMPANHAS_REPRO\\2023\\MAI\\CREDITO_CARTOES_REBATES_0523_3.csv",
+           row.names=FALSE,quote = FALSE)
+
+
+## EMISSAO CARTOES  =========================================================================
 
 
 

@@ -161,7 +161,8 @@ PAG_INSIGNE_0523_ALL <-  rbind(
   PAG_INSIGNE_0523,
   PAG_INSIGNE_0523_213,
   PAG_INSIGNE_0523_151
-) %>% mutate(PGTO_MINIMO=if_else(BONUS>=100,"S","N"))
+) %>% mutate(PGTO_MINIMO=if_else(BONUS>=100,"S","N")) %>% 
+   mutate(TIPO="INSIGNE")
 
 View(PAG_INSIGNE_0523_ALL)
 
@@ -187,18 +188,14 @@ View(LIST_INSIGNE_0523_ALL)
 range_write(LIST_INSIGNE_0523_ALL ,ss="1a-u9ZH9RLQnQGrCUHzDRpao0EEuzhfSlBfgHAn27ry8",range = "A:P",sheet="INSIGNE",reformat = FALSE)  
 
 
-## =======================================================================================================  
-
 range_write(LIST_INSIGNE_0523_ALL %>% filter(CLICODIGO==151) ,ss="1a-u9ZH9RLQnQGrCUHzDRpao0EEuzhfSlBfgHAn27ry8",range = "A:P",sheet="DADOS",reformat = FALSE)  
 
 
-## ======================================================================================================= 
+## CREDITO CARTOES ======================================================================================================= 
 
-
-## CREDITO CARTOES
 
 CREDITO_CARTOES_INSIGNE_0523 <- left_join(PAG_INSIGNE_0523_ALL %>%
-                                            mutate(CPF=as.character(CPF)),CARTOES_0523 %>%  
+                                            mutate(CPF=as.character(CPF)),CARTOES_0706 %>%  
                                             filter(STATUS!="Cancelado") %>% 
                                             mutate(CPF=sub("\\D+", '',CPF)) %>% 
                                             mutate(CPF=sub("\\.", '',CPF)) %>% 
@@ -211,7 +208,7 @@ View(CREDITO_CARTOES_INSIGNE_0523)
 ## EXCLUI SEM CARTAO
 
 CREDITO_CARTOES_INSIGNE_0523_2 <- CREDITO_CARTOES_INSIGNE_0523 %>% 
-  filter(!is.na(NSERIE))
+  filter(!is.na(NSERIE)) %>% filter(PGTO_MINIMO=='S')
 
 View(CREDITO_CARTOES_INSIGNE_0523_2)
 
@@ -220,13 +217,11 @@ CREDITO_CARTOES_INSIGNE_0523_2 %>% .[duplicated(.$CPF),]
 CREDITO_CARTOES_INSIGNE_0523_2 %>% n_distinct(.$CPF)
 
 
-left_join(CREDITO_CARTOES_INSIGNE_0523_2,CARTOES_0523,by="CPF") %>% View()
 
-
-# CRIA BASE DE PAGAMENTO
+## CRIA BASE DE PAGAMENTO ============================================================
 
 CREDITO_CARTOES_INSIGNE_0523_3 <- CREDITO_CARTOES_INSIGNE_0523_2  %>% 
-  .[,c(4,1,2,3)] %>% 
+  .[,c(6,1,2,3)] %>% 
   rename_at(1:4, ~ c("Número de Série","CPF","Valor da Carga","Observacao"))
 
 
@@ -238,9 +233,24 @@ CREDITO_CARTOES_INSIGNE_0523_3 %>% .[duplicated(.$CPF),]
 
 
 write.csv2(CREDITO_CARTOES_INSIGNE_0523_3,
-           file = "C:\\Users\\Repro\\Documents\\R\\ADM\\CAMPANHAS_REPRO\\2023\\ABR\\CREDITO_CARTOES_INSIGNE_0523.csv",
+           file = "C:\\Users\\Repro\\Documents\\R\\ADM\\CAMPANHAS_REPRO\\2023\\MAI\\CREDITO_CARTOES_INSIGNE_0523.csv",
            row.names=FALSE,quote = FALSE)
 
+
+## NAO BONIFICADOS ============================================================
+
+NAO_BONIFICADOS_INSIGNE_0523 <-
+
+left_join(CREDITO_CARTOES_INSIGNE_0523_2 <- CREDITO_CARTOES_INSIGNE_0523 %>% 
+            filter(!is.na(NSERIE)) %>% 
+              filter(PGTO_MINIMO=='N'),BASE_CPF %>% mutate(CPF=as.character(CPF)),by="CPF") %>% 
+ left_join(.,cli %>% select(CLICODIGO,SETOR),by="CLICODIGO") %>% 
+  .[,c(12,13,1,2,3)] 
+  
+  
+range_write("1a-u9ZH9RLQnQGrCUHzDRpao0EEuzhfSlBfgHAn27ry8",data =NAO_BONIFICADOS_INSIGNE_0523,
+              sheet = "NAO BONIFICADOS",range = "A1")
+   
 
 ## EMISSAO CARTAO ======================================================================================================= 
 
@@ -315,10 +325,15 @@ View(CP_INSIGNE_0523_DIGITADOS)
 
 range_write(CP_INSIGNE_0523_DIGITADOS,ss="1a-u9ZH9RLQnQGrCUHzDRpao0EEuzhfSlBfgHAn27ry8",range = "A:P",sheet="INSIGNE DIGITADOS",reformat = FALSE)  
 
-## =======================================================================================================  
+##  =======================================================================================================  
 
 
-## CHECK PAYMENTS
+
+
+
+
+
+## CHECK PAYMENTS ============================================================
 
 insigne_pagos_0523 <- read_sheet("",sheet = "INSIGNE") %>% 
   mutate(CPF=as.character(CPF))
