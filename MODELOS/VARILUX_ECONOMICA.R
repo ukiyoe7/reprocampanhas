@@ -1,0 +1,186 @@
+## CAMPANHA TRANSITIONS ECONOMICA
+
+con2 <- dbConnect(odbc::odbc(), "reproreplica")
+
+# EYEZEN ===========================================
+
+# ORMA
+
+dbGetQuery(con2,"
+SELECT PROCODIGO,PRODESCRICAO, 20 BONUS FROM PRODU WHERE  
+                  ((PRODESCRICAO LIKE '%EYEZEN%' AND 
+                  PRODESCRICAO LIKE '%ORMA%')) AND 
+                  (PRODESCRICAO NOT LIKE '%TGEN8%') AND
+                  (PRODESCRICAO NOT LIKE '%TRANS%') AND
+                  GR1CODIGO<>17 AND 
+                  PROSITUACAO='A'AND 
+                  PROCODIGO2 IS NULL") %>% View() 
+
+
+#ORMA 1.67 
+
+dbGetQuery(con2,"
+SELECT PROCODIGO,PRODESCRICAO, 40 BONUS FROM PRODU WHERE  
+             ((PRODESCRICAO LIKE '%EYEZEN%' AND PRODESCRICAO LIKE '%1.67%')
+             OR
+             (PRODESCRICAO LIKE '%EYEZEN%' AND PRODESCRICAO LIKE '%1.74%'))
+             AND
+                   PRODESCRICAO NOT LIKE '%TGEN8%' AND
+                 GR1CODIGO<>17 AND PROSITUACAO='A'
+                 AND PROCODIGO2 IS NULL") %>%View()
+
+# ORMA TRANS
+
+dbGetQuery(con2,"
+SELECT PROCODIGO,PRODESCRICAO, 60 BONUS FROM PRODU WHERE  
+                  (PRODESCRICAO LIKE '%EYEZEN%' AND 
+                  PRODESCRICAO LIKE '%ORMA%') AND 
+                  (PRODESCRICAO LIKE '%TGEN8%' OR PRODESCRICAO LIKE '%TRANS%') AND
+                  GR1CODIGO<>17 AND 
+                  PROSITUACAO='A'AND 
+                  PROCODIGO2 IS NULL") %>% View() 
+
+
+
+# 1.67  TRANS
+
+dbGetQuery(con2,"
+SELECT PROCODIGO,PRODESCRICAO,80 BONUS FROM PRODU WHERE  
+                  ((PRODESCRICAO LIKE '%EYEZEN%' AND 
+                  PRODESCRICAO LIKE '%1.67%')) AND 
+                  (PRODESCRICAO LIKE '%TGEN8%' OR PRODESCRICAO LIKE '%TRANS%') AND
+                  GR1CODIGO<>17 AND 
+                  PROSITUACAO='A'AND 
+                  PROCODIGO2 IS NULL") %>% View() 
+
+
+
+
+## VARILUX LIBERTY  ================================================
+
+# ORMA
+
+dbGetQuery(con2,"
+SELECT PROCODIGO,PRODESCRICAO,20 BONUS FROM PRODU WHERE  
+             (PRODESCRICAO LIKE '%LIBERTY%' AND PRODESCRICAO LIKE '%ORM%')
+             AND
+                  (PRODESCRICAO NOT LIKE '%TGEN8%') AND
+                  (PRODESCRICAO NOT LIKE '%TRANS%') AND
+                 GR1CODIGO<>17 AND PROSITUACAO='A'
+                 AND PROCODIGO2 IS NULL AND GR1CODIGO=15") %>%View() 
+
+# ORMA TRANS
+
+dbGetQuery(con2,"
+SELECT PROCODIGO,PRODESCRICAO,60 BONUS FROM PRODU WHERE  
+             (PRODESCRICAO LIKE '%LIBERTY%' AND PRODESCRICAO LIKE '%ORM%')
+             AND
+                  (PRODESCRICAO LIKE '%TGEN8%' OR PRODESCRICAO LIKE '%TRANS%') AND
+                 GR1CODIGO<>17 AND PROSITUACAO='A'
+                 AND PROCODIGO2 IS NULL AND GR1CODIGO=15") %>%View() 
+
+
+## VARILUX COMFORT ================================================
+
+# ORMA
+
+dbGetQuery(con2,"
+SELECT PROCODIGO,PRODESCRICAO,40 BONUS FROM PRODU WHERE  
+             (PRODESCRICAO LIKE '%COMFORT%' AND PRODESCRICAO LIKE '%ORM%')
+             AND
+                  (PRODESCRICAO NOT LIKE '%TGEN8%') AND
+                  (PRODESCRICAO NOT LIKE '%TRANS%') AND
+                 GR1CODIGO<>17 AND PROSITUACAO='A'
+                 AND PROCODIGO2 IS NULL AND GR1CODIGO=15") %>%View() 
+
+
+# 1.67 1.74
+
+dbGetQuery(con2,"
+SELECT PROCODIGO,PRODESCRICAO,60 BONUS FROM PRODU WHERE  
+             ((PRODESCRICAO LIKE '%COMFORT%' AND PRODESCRICAO LIKE '%1.67%')
+             OR
+             (PRODESCRICAO LIKE '%COMFORT%' AND PRODESCRICAO LIKE '%1.74%'))
+              AND
+                  (PRODESCRICAO NOT LIKE '%TGEN8%' AND PRODESCRICAO NOT LIKE '%TRANS%') AND
+             
+                 GR1CODIGO<>17 AND PROSITUACAO='A'
+                 AND PROCODIGO2 IS NULL AND GR1CODIGO=15") %>%View() 
+
+# ORMA TRANS
+
+dbGetQuery(con2,"
+SELECT PROCODIGO,PRODESCRICAO,100 BONUS FROM PRODU WHERE  
+             (PRODESCRICAO LIKE '%COMFORT%' AND PRODESCRICAO LIKE '%ORM%')
+             AND
+                  (PRODESCRICAO LIKE '%TGEN8%' OR PRODESCRICAO LIKE '%TRANS%') AND
+                 GR1CODIGO<>17 AND PROSITUACAO='A'
+                 AND PROCODIGO2 IS NULL AND GR1CODIGO=15") %>%View() 
+
+
+# 1.67 1.74 TRANS
+
+dbGetQuery(con2,"
+SELECT PROCODIGO,PRODESCRICAO,140 BONUS FROM PRODU WHERE  
+             ((PRODESCRICAO LIKE '%COMFORT%' AND PRODESCRICAO LIKE '%1.67%')
+             OR
+             (PRODESCRICAO LIKE '%COMFORT%' AND PRODESCRICAO LIKE '%1.74%'))
+              AND
+                  (PRODESCRICAO LIKE '%TGEN8%' OR PRODESCRICAO LIKE '%TRANS%') AND
+             
+                 GR1CODIGO<>17 AND PROSITUACAO='A'
+                 AND PROCODIGO2 IS NULL AND GR1CODIGO=15") %>%View() 
+
+## VARILUX E ==================================================================
+
+
+## ORMA
+dbGetQuery(con2,"
+SELECT PROCODIGO,PRODESCRICAO,60 BONUS FROM PRODU WHERE  
+             (PRODESCRICAO LIKE '%VARILUX E%' AND PRODESCRICAO LIKE '%ORMA%')
+             AND
+             (PRODESCRICAO NOT LIKE '%TGEN8%') AND
+                  (PRODESCRICAO NOT LIKE '%TRANS%') AND
+                 GR1CODIGO<>17 AND PROSITUACAO='A'
+                 AND PROCODIGO2 IS NULL AND GR1CODIGO=15") %>%View() 
+
+
+# 1.67 1.74
+dbGetQuery(con2,"
+SELECT PROCODIGO,PRODESCRICAO,80 BONUS FROM PRODU WHERE  
+             ((PRODESCRICAO LIKE '%VARILUX E%' AND PRODESCRICAO LIKE '%1.67%')
+             OR
+             (PRODESCRICAO LIKE '%VARILUX E%' AND PRODESCRICAO LIKE '%1.74%'))
+             AND
+             (PRODESCRICAO NOT LIKE '%TGEN8%') AND
+                  (PRODESCRICAO NOT LIKE '%TRANS%') AND
+                 GR1CODIGO<>17 AND PROSITUACAO='A'
+                 AND PROCODIGO2 IS NULL AND GR1CODIGO=15") %>%View() 
+
+
+## ORMA TRANS
+dbGetQuery(con2,"
+SELECT PROCODIGO,PRODESCRICAO,140 TRANS FROM PRODU WHERE  
+             (PRODESCRICAO LIKE '%VARILUX E%' AND PRODESCRICAO LIKE '%ORMA%')
+             AND
+             (PRODESCRICAO LIKE '%TGEN8%') AND
+                 GR1CODIGO<>17 AND PROSITUACAO='A'
+                 AND PROCODIGO2 IS NULL AND GR1CODIGO=15") %>%View() 
+
+
+# 1.67 1.74 TRANS
+dbGetQuery(con2,"
+SELECT PROCODIGO,PRODESCRICAO,180 BONUS FROM PRODU WHERE  
+             ((PRODESCRICAO LIKE '%VARILUX E%' AND PRODESCRICAO LIKE '%1.67%')
+             OR
+             (PRODESCRICAO LIKE '%VARILUX E%' AND PRODESCRICAO LIKE '%1.74%'))
+             AND
+             (PRODESCRICAO LIKE '%TGEN8%') AND 
+                 GR1CODIGO<>17 AND PROSITUACAO='A'
+                 AND PROCODIGO2 IS NULL AND GR1CODIGO=15") %>%View() 
+
+
+
+
+
+
