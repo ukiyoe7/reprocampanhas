@@ -555,7 +555,7 @@ View(CREDITO_CARTOES_REBATES_0623)
 
 
 CREDITO_CARTOES_REBATES_0623_2 <- CREDITO_CARTOES_REBATES_0623 %>% 
-  filter(!is.na(NSERIE)) %>% filter(!is.na(BONUS)) %>% filter(PGTO_MINIMO)
+  filter(!is.na(NSERIE)) %>% filter(!is.na(BONUS)) %>%  filter(PGTO_MINIMO=='S')
 
 View(CREDITO_CARTOES_REBATES_0623_2)
 
@@ -575,7 +575,7 @@ CREDITO_CARTOES_REBATES_0623_3 %>% .[duplicated(.$CPF),]
 
 
 write.csv2(CREDITO_CARTOES_REBATES_0623_3,
-           file = "C:\\Users\\Repro\\Documents\\R\\ADM\\CAMPANHAS_REPRO\\2023\\MAI\\CREDITO_CARTOES_REBATES_0623_3.csv",
+           file = "C:\\Users\\Repro\\Documents\\R\\ADM\\CAMPANHAS_REPRO\\2023\\JUN\\CREDITO_CARTOES_REBATES_0623_3.csv",
            row.names=FALSE,quote = FALSE)
 
 

@@ -106,9 +106,11 @@ CP_INSIGNE_0623_2 <- CP_INSIGNE_0623 %>% filter(CLICODIGO!=213)
 
 CP_INSIGNE_0623_3 <- CP_INSIGNE_0623_2 %>% filter(CLICODIGO!=151)
 
+CP_INSIGNE_0623_4 <- CP_INSIGNE_0623_3 %>% filter(CLICODIGO!=849)
+
 ## INTERSECTION
 
-LIST_INSIGNE_0623 <- left_join(CP_INSIGNE_0623_3,BASE_CPF,by="CLICODIGO") %>%
+LIST_INSIGNE_0623 <- left_join(CP_INSIGNE_0623_4,BASE_CPF,by="CLICODIGO") %>%
   rename(CPF=CPF.x) %>% rename(CPF2=CPF.y) %>% 
   mutate(CPF3=ifelse(CPF2=='NULL',CPF,CPF2)) %>%
   mutate(OBS=OBS_SIG) 
@@ -157,13 +159,33 @@ PAG_INSIGNE_0623_213 <-  LIST_INSIGNE_0623_213 %>% group_by(CPF3) %>%
   summarize(BONUS=sum(BONUS)/(LIST_INSIGNE_0623_213 %>% distinct(CPF3) %>% lengths())) %>% 
   mutate(OBS=OBS_SIG) %>% rename(CPF=CPF3)
 
+
+## 849  ========
+
+CP_INSIGNE_0623_849 <- CP_INSIGNE_0623 %>% filter(CLICODIGO==849)
+
+## INTERSECT
+
+LIST_INSIGNE_0623_849 <- left_join(CP_INSIGNE_0623_849,BASE_CPF,by="CLICODIGO") %>%
+  rename(CPF=CPF.x) %>% rename(CPF2=CPF.y) %>% 
+  mutate(OBS=OBS_SIG) %>% mutate(CPF3=ifelse(CPF2=='NULL',CPF,CPF2)) 
+
+LIST_INSIGNE_0623_849 %>%  summarize(BONUS=sum(BONUS))
+
+## PAY
+
+PAG_INSIGNE_0623_849 <-  LIST_INSIGNE_0623_849 %>% group_by(CPF3) %>% 
+  summarize(BONUS=sum(BONUS)/(LIST_INSIGNE_0623_213 %>% distinct(CPF3) %>% lengths())) %>% 
+  mutate(OBS=OBS_SIG) %>% rename(CPF=CPF3)
+
 ## PAGAMENTOS ======================================================================================================= 
 
 
 PAG_INSIGNE_0623_ALL <-  rbind( 
   PAG_INSIGNE_0623,
   PAG_INSIGNE_0623_213,
-  PAG_INSIGNE_0623_151
+  PAG_INSIGNE_0623_151,
+  PAG_INSIGNE_0623_849
 ) %>% mutate(PGTO_MINIMO=if_else(BONUS>=100,"S","N")) %>% 
   mutate(TIPO="INSIGNE")
 
@@ -236,7 +258,7 @@ CREDITO_CARTOES_INSIGNE_0623_3 %>% .[duplicated(.$CPF),]
 
 
 write.csv2(CREDITO_CARTOES_INSIGNE_0623_3,
-           file = "C:\\Users\\Repro\\Documents\\R\\ADM\\CAMPANHAS_REPRO\\2023\\MAI\\CREDITO_CARTOES_INSIGNE_0623.csv",
+           file = "C:\\Users\\Repro\\Documents\\R\\ADM\\CAMPANHAS_REPRO\\2023\\JUN\\CREDITO_CARTOES_INSIGNE_0623.csv",
            row.names=FALSE,quote = FALSE)
 
 
