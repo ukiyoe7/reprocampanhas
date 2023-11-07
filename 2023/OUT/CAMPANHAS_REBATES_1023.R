@@ -414,7 +414,7 @@ REBATE_PAGAMENTO_1023 <- rbind(REBATE_PAGAMENTO_G139_1023,
                                REBATE_PAGAMENTO_157_1023,
                                REBATE_PAGAMENTO_1830_1023,
                                REBATE_PAGAMENTO_4253_1023
-) %>% 
+) %>% mutate(PGTO_MINIMO=if_else(BONUS>=100,"S","N")) %>% 
   mutate(TIPO="REBATE")
 
 View(REBATE_PAGAMENTO_1023)

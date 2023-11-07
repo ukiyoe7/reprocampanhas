@@ -79,7 +79,7 @@ VARILUX_G224_1023 %>% summarize(v=sum(VRVENDA))
 VARILUX_G224_1023 %>% summarize(v=sum(BONUS))
 
 
-OBS_VARILUX_G224_1023 <-  paste0("OTICA ITAÇU G224 TODOS VARILUX",format(floor_date(Sys.Date()-months(1),"month"),"%m%y")) 
+OBS_VARILUX_G224_1023 <-  paste0("OTICA ITAÇU G224 TODOS VARILUX ",format(floor_date(Sys.Date()-months(1),"month"),"%m%y")) 
 
 
 ## ASSOCIATE CPF

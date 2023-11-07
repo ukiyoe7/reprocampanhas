@@ -1,6 +1,6 @@
 
 ## NOVO MODELO APURACAO CAMPANHAS
-## PERIODO DE REFERENCIA 0923
+## PERIODO DE REFERENCIA 1023
 ## SANDRO JAKOSKA
 
 ## LOAD ============================================================================================
@@ -20,7 +20,7 @@ BASE_CPF <- read_sheet("1ShpVwae6DVAqYW3afQli7XggL_7cJrDiWeKw2luKpC0",
 ## ATÉ 31.12.2023 
 # SQL 
 
-CP_VARILUX_G121_0923 <- dbGetQuery(con2,"
+CP_VARILUX_G121_1023 <- dbGetQuery(con2,"
 WITH FIS AS (SELECT FISCODIGO FROM TBFIS WHERE FISTPNATOP IN ('V','SR','R') OR FISCODIGO IN ('5.910')),
 
 CLI AS (SELECT C.CLICODIGO,CLINOMEFANT,GCLCODIGO,SETOR FROM CLIEN C
@@ -154,11 +154,11 @@ GROUP BY 1,2,3,4,5,6,7,8,9 HAVING SUM(PDPQTDADE)>=2
   mutate(CPF=sub("\\-", '',CPF)) %>% 
   mutate(CPF=sub("\\,", '',CPF)) 
 
-View(CP_VARILUX_G121_0923)
+View(CP_VARILUX_G121_1023)
 
-CP_VARILUX_G121_0923 %>% summarize(v=sum(VRVENDA))
+CP_VARILUX_G121_1023 %>% summarize(v=sum(VRVENDA))
 
-CP_VARILUX_G121_0923 %>% summarize(v=sum(BONUS))
+CP_VARILUX_G121_1023 %>% summarize(v=sum(BONUS))
 
 ## OBS
 
@@ -166,7 +166,7 @@ OBS_VARILUX_G121 <- paste0("RINALDI G121 ","VARILUX ",format(floor_date(Sys.Date
 
 ## GARANTIAS ALCIDINO
 
-LIST_VARILUX_G121_0923_G <- inner_join(CP_VARILUX_G121_0923 %>% 
+LIST_VARILUX_G121_1023_G <- inner_join(CP_VARILUX_G121_1023 %>% 
                                          mutate(CFOP=str_trim(CFOP)) %>% 
                                          filter(CFOP %in% c('5.910'))
                                        ,BASE_CPF,by="CLICODIGO") %>% 
@@ -175,43 +175,43 @@ LIST_VARILUX_G121_0923_G <- inner_join(CP_VARILUX_G121_0923 %>%
   rename(.,"CPF"="CPF2") %>% 
   mutate(OBS=paste0(OBS_VARILUX_G121,' Garantias'))
 
-View(LIST_VARILUX_G121_0923_G)
+View(LIST_VARILUX_G121_1023_G)
 
 
-range_write(LIST_VARILUX_G121_0923_G,ss="1vnn7_8_PwZwvG8AeTg6Oq1rJosDnl0zNM_yQ6oCweM4",range = "A1",
+range_write(LIST_VARILUX_G121_1023_G,ss="1vnn7_8_PwZwvG8AeTg6Oq1rJosDnl0zNM_yQ6oCweM4",range = "A1",
             sheet="CORTESIAS BONIFICADAS",reformat = FALSE)  
 
 
 
 ## JOIN CPF
 
-LIST_VARILUX_G121_0923 <- inner_join(CP_VARILUX_G121_0923,BASE_CPF,by="CLICODIGO") %>% 
+LIST_VARILUX_G121_1023 <- inner_join(CP_VARILUX_G121_1023,BASE_CPF,by="CLICODIGO") %>% 
   rename(CPF1=CPF.x) %>% rename(CPF2=CPF.y) %>%
   .[,c(-2,-13)] %>% 
   rename(.,"CPF"="CPF2") %>% 
   mutate(OBS=OBS_VARILUX_G121)
 
-View(LIST_VARILUX_G121_0923)
+View(LIST_VARILUX_G121_1023)
 
 
 ### pagamentos
 
-PAG_VARILUX_G121_0923 <- LIST_VARILUX_G121_0923 %>% group_by(CPF) %>% 
+PAG_VARILUX_G121_1023 <- LIST_VARILUX_G121_1023 %>% group_by(CPF) %>% 
   summarize(BONUS=round(sum(BONUS),2)) %>%
   mutate(OBS=OBS_VARILUX_G121) 
 
-View(PAG_VARILUX_G121_0923)
+View(PAG_VARILUX_G121_1023)
 
 # Calc Bonus
 
-PAG_VARILUX_G121_0923 %>% summarize(v=sum(BONUS))
+PAG_VARILUX_G121_1023 %>% summarize(v=sum(BONUS))
 
 
 ## 206 RH =============================================================================================================         
 ## ATÉ 31.12.2023
 # SQL 
 
-CP_206_0923 <- dbGetQuery(con2,"
+CP_206_1023 <- dbGetQuery(con2,"
 WITH FIS AS (SELECT FISCODIGO FROM TBFIS WHERE FISTPNATOP IN ('V','SR','R')),
 
 CLI AS(SELECT C.CLICODIGO,CLINOMEFANT,GCLCODIGO,SETOR FROM CLIEN C
@@ -310,42 +310,42 @@ GROUP BY 1,2,3,4,5,6,7,8 HAVING SUM(PDPQTDADE)>=2
   mutate(CPF=sub("\\-", '',CPF)) %>% 
   mutate(CPF=sub("\\,", '',CPF)) 
 
-View(CP_206_0923)
+View(CP_206_1023)
 
-CP_206_0923 %>% summarize(v=sum(VRVENDA))
+CP_206_1023 %>% summarize(v=sum(VRVENDA))
 
-CP_206_0923 %>% summarize(v=sum(BONUS))
+CP_206_1023 %>% summarize(v=sum(BONUS))
 
 
-OBS_206 <-  paste0("OTICA RH ",CP_206_0923 %>% distinct(CLICODIGO)," ","VARILUX ",format(floor_date(Sys.Date()-months(1),"month"),"%m%y")) 
+OBS_206 <-  paste0("OTICA RH ",CP_206_1023 %>% distinct(CLICODIGO)," ","VARILUX ",format(floor_date(Sys.Date()-months(1),"month"),"%m%y")) 
 
 ## JOIN CPF
 
-LIST_VARILUX_206_0923 <- inner_join(CP_206_0923,BASE_CPF,by="CLICODIGO") %>% 
+LIST_VARILUX_206_1023 <- inner_join(CP_206_1023,BASE_CPF,by="CLICODIGO") %>% 
   rename(CPF1=CPF.x) %>% rename(CPF2=CPF.y) %>% 
   .[,-12] %>% 
   rename(.,"CPF"="CPF2") %>% 
   mutate(OBS=OBS_206)
 
 
-View(LIST_VARILUX_206_0923)
+View(LIST_VARILUX_206_1023)
 
 
 ### pagamentos
 
-PAG_VARILUX_206_0923 <- LIST_VARILUX_206_0923 %>% group_by(CPF) %>% 
+PAG_VARILUX_206_1023 <- LIST_VARILUX_206_1023 %>% group_by(CPF) %>% 
   summarize(BONUS=round(sum(BONUS),2)) %>% 
   mutate(OBS=OBS_206)
 
 
-View(PAG_VARILUX_206_0923)
+View(PAG_VARILUX_206_1023)
 
 
 ## 1225 VINI =============================================================================================================         
 
 # SQL 
 
-CP_VARILUX_1225_0923 <- dbGetQuery(con2,"
+CP_VARILUX_1225_1023 <- dbGetQuery(con2,"
 WITH FIS AS (SELECT FISCODIGO FROM TBFIS WHERE FISTPNATOP IN ('V','SR','R')),
 
 CLI AS(SELECT C.CLICODIGO,CLINOMEFANT,GCLCODIGO,SETOR FROM CLIEN C
@@ -513,44 +513,44 @@ GROUP BY 1,2,3,4,5,6,7,8 HAVING SUM(PDPQTDADE)>=2
   mutate(CPF=sub("\\-", '',CPF)) %>% 
   mutate(CPF=sub("\\,", '',CPF)) 
 
-View(CP_VARILUX_1225_0923)
+View(CP_VARILUX_1225_1023)
 
-CP_VARILUX_1225_0923 %>% summarize(v=sum(VRVENDA))
+CP_VARILUX_1225_1023 %>% summarize(v=sum(VRVENDA))
 
-CP_VARILUX_1225_0923 %>% summarize(v=sum(BONUS))
+CP_VARILUX_1225_1023 %>% summarize(v=sum(BONUS))
 
 OBS_VARILUX_1225 <- paste0("VINI 1225 ","VARILUX ",format(floor_date(Sys.Date()-months(1),"month"),"%m%y")) 
 
 
 ## JOIN CPF
 
-LIST_VARILUX_1225_0923  <- inner_join(CP_VARILUX_1225_0923,BASE_CPF,by="CLICODIGO") %>% 
+LIST_VARILUX_1225_1023  <- inner_join(CP_VARILUX_1225_1023,BASE_CPF,by="CLICODIGO") %>% 
   rename(CPF1=CPF.x) %>% rename(CPF2=CPF.y) %>% 
   .[,-12] %>% 
   rename(.,"CPF"="CPF2") %>% 
   mutate(OBS=OBS_VARILUX_1225)
 
-View(LIST_VARILUX_1225_0923)
+View(LIST_VARILUX_1225_1023)
 
 
 ### PAY
 
-PAG_VARILUX_1225_0923 <- LIST_VARILUX_1225_0923 %>% 
+PAG_VARILUX_1225_1023 <- LIST_VARILUX_1225_1023 %>% 
   group_by(CPF) %>% 
   summarize(BONUS=round(sum(BONUS),2)) %>% 
   mutate(OBS=OBS_VARILUX_1225) 
 
-View(PAG_VARILUX_1225_0923)
+View(PAG_VARILUX_1225_1023)
 
 
-PAG_VARILUX_1225_0923 %>% summarize(v=sum(BONUS))
+PAG_VARILUX_1225_1023 %>% summarize(v=sum(BONUS))
 
 
 
 ## CP8 360 UNIVERSAL =============================================================================================
 
 
-CP_VARILUX_360_0923 <- dbGetQuery(con2,"
+CP_VARILUX_360_1023 <- dbGetQuery(con2,"
 WITH FIS AS (SELECT FISCODIGO FROM TBFIS WHERE FISTPNATOP IN ('V','SR','R')),
 
 CLI AS(SELECT C.CLICODIGO,CLINOMEFANT,GCLCODIGO,SETOR FROM CLIEN C
@@ -754,37 +754,37 @@ GROUP BY 1,2,3,4,5,6,7,8 HAVING SUM(PDPQTDADE)>=2
   mutate(CPF=sub("\\-", '',CPF)) %>% 
   mutate(CPF=sub("\\,", '',CPF)) 
 
-View(CP_VARILUX_360_0923)
+View(CP_VARILUX_360_1023)
 
-CP_VARILUX_360_0923 %>% summarize(v=sum(VRVENDA))
+CP_VARILUX_360_1023 %>% summarize(v=sum(VRVENDA))
 
-CP_VARILUX_360_0923 %>% summarize(v=sum(BONUS))
+CP_VARILUX_360_1023 %>% summarize(v=sum(BONUS))
 
 OBS_VARILUX_360 <- paste0("UNIVERSAL 360 ","VARILUX ",format(floor_date(Sys.Date()-months(1),"month"),"%m%y")) 
 
 
 ## JOIN CPF
 
-LIST_VARILUX_360_0923  <- inner_join(CP_VARILUX_360_0923,BASE_CPF,by="CLICODIGO") %>% 
+LIST_VARILUX_360_1023  <- inner_join(CP_VARILUX_360_1023,BASE_CPF,by="CLICODIGO") %>% 
   rename(CPF1=CPF.x) %>% rename(CPF2=CPF.y) %>% 
   .[,-12] %>% 
   rename(.,"CPF"="CPF2") %>% 
   mutate(OBS=OBS_VARILUX_360)
 
-View(LIST_VARILUX_360_0923)
+View(LIST_VARILUX_360_1023)
 
 
 ### PAY
 
-PAG_VARILUX_360_0923 <- LIST_VARILUX_360_0923 %>% 
+PAG_VARILUX_360_1023 <- LIST_VARILUX_360_1023 %>% 
   group_by(CPF) %>% 
   summarize(BONUS=round(sum(BONUS),2)) %>% 
   mutate(OBS=OBS_VARILUX_360) 
 
-View(PAG_VARILUX_360_0923)
+View(PAG_VARILUX_360_1023)
 
 
-PAG_VARILUX_360_0923 %>% summarize(v=sum(BONUS))
+PAG_VARILUX_360_1023 %>% summarize(v=sum(BONUS))
 
 
 
@@ -792,7 +792,7 @@ PAG_VARILUX_360_0923 %>% summarize(v=sum(BONUS))
 
 ## ACORDO DEBITO DE 2x DE 75 REF A PGTO DUPLICADO
 
-CP_VARILUX_4576_0923 <- dbGetQuery(con2,"
+CP_VARILUX_4576_1023 <- dbGetQuery(con2,"
 WITH FIS AS (SELECT FISCODIGO FROM TBFIS WHERE FISTPNATOP IN ('V','SR','R')),
 
 CLI AS(SELECT C.CLICODIGO,CLINOMEFANT,GCLCODIGO,SETOR FROM CLIEN C
@@ -983,37 +983,37 @@ GROUP BY 1,2,3,4,5,6,7,8 HAVING SUM(PDPQTDADE)>=2
   mutate(CPF=sub("\\-", '',CPF)) %>% 
   mutate(CPF=sub("\\,", '',CPF)) 
 
-View(CP_VARILUX_4576_0923)
+View(CP_VARILUX_4576_1023)
 
-CP_VARILUX_4576_0923 %>% summarize(v=sum(VRVENDA))
+CP_VARILUX_4576_1023 %>% summarize(v=sum(VRVENDA))
 
-CP_VARILUX_4576_0923 %>% summarize(v=sum(BONUS))
+CP_VARILUX_4576_1023 %>% summarize(v=sum(BONUS))
 
 OBS_VARILUX_4576 <- paste0("OJO 4576 " ,"VARILUX ",format(floor_date(Sys.Date()-months(1),"month"),"%m%y")) 
 
 
 ## JOIN CPF
 
-LIST_VARILUX_4576_0923  <- inner_join(CP_VARILUX_4576_0923,BASE_CPF,by="CLICODIGO") %>% 
+LIST_VARILUX_4576_1023  <- inner_join(CP_VARILUX_4576_1023,BASE_CPF,by="CLICODIGO") %>% 
   rename(CPF1=CPF.x) %>% rename(CPF2=CPF.y) %>% 
   .[,-12] %>% 
   rename(.,"CPF"="CPF2") %>% 
   mutate(OBS=OBS_VARILUX_4576)
 
-View(LIST_VARILUX_4576_0923)
+View(LIST_VARILUX_4576_1023)
 
 
 ### PAY
 
-PAG_VARILUX_4576_0923 <- LIST_VARILUX_4576_0923 %>% 
+PAG_VARILUX_4576_1023 <- LIST_VARILUX_4576_1023 %>% 
   group_by(CPF) %>% 
   summarize(BONUS=round(sum(BONUS),2)) %>% 
   mutate(OBS=OBS_VARILUX_4576) 
 
-View(PAG_VARILUX_4576_0923)
+View(PAG_VARILUX_4576_1023)
 
 
-PAG_VARILUX_4576_0923 %>% summarize(v=sum(BONUS))
+PAG_VARILUX_4576_1023 %>% summarize(v=sum(BONUS))
 
 
 
@@ -1023,53 +1023,53 @@ PAG_VARILUX_4576_0923 %>% summarize(v=sum(BONUS))
 ## PAGAMENTOS  =============================================================================================================       
 
 
-PAG_VARILUX_0923 <-  
+PAG_VARILUX_1023 <-  
   rbind(
-    PAG_VARILUX_G121_0923, 
-    PAG_VARILUX_206_0923, 
-    PAG_VARILUX_1225_0923,
-    PAG_VARILUX_360_0923,
-    PAG_VARILUX_4576_0923
+    PAG_VARILUX_G121_1023, 
+    PAG_VARILUX_206_1023, 
+    PAG_VARILUX_1225_1023,
+    PAG_VARILUX_360_1023,
+    PAG_VARILUX_4576_1023
   ) %>% mutate(PGTO_MINIMO=if_else(BONUS>=100,"S","N")) %>% 
   mutate(TIPO="VARILUX")
 
 
-View(PAG_VARILUX_0923)
+View(PAG_VARILUX_1023)
 
-PAG_VARILUX_0923 %>% summarize(v=sum(BONUS))
+PAG_VARILUX_1023 %>% summarize(v=sum(BONUS))
 
-range_write(PAG_VARILUX_0923,ss="1vnn7_8_PwZwvG8AeTg6Oq1rJosDnl0zNM_yQ6oCweM4",range = "A42",
+range_write(PAG_VARILUX_1023,ss="1vnn7_8_PwZwvG8AeTg6Oq1rJosDnl0zNM_yQ6oCweM4",range = "A42",
             col_names = FALSE,sheet="RESUMO",reformat = FALSE)  
 
 
 ## LISTAGEM FINAL   =============================================================================================================         
 
 
-LIST_VARILUX_0923 <-  rbind(
-  LIST_VARILUX_G121_0923,
-  LIST_VARILUX_206_0923,
-  LIST_VARILUX_1225_0923, 
-  LIST_VARILUX_360_0923,
-  LIST_VARILUX_4576_0923
+LIST_VARILUX_1023 <-  rbind(
+  LIST_VARILUX_G121_1023,
+  LIST_VARILUX_206_1023,
+  LIST_VARILUX_1225_1023, 
+  LIST_VARILUX_360_1023,
+  LIST_VARILUX_4576_1023
 ) 
 
 
 
-View(LIST_VARILUX_0923)
+View(LIST_VARILUX_1023)
 
-LIST_VARILUX_0923 %>% summarize(v=sum(BONUS))
+LIST_VARILUX_1023 %>% summarize(v=sum(BONUS))
 
-range_write(LIST_VARILUX_0923,ss="1vnn7_8_PwZwvG8AeTg6Oq1rJosDnl0zNM_yQ6oCweM4",
+range_write(LIST_VARILUX_1023,ss="1vnn7_8_PwZwvG8AeTg6Oq1rJosDnl0zNM_yQ6oCweM4",
             range = "A:P",sheet="VARILUX",reformat = FALSE)  
 
 
 
 ## CREDITO CARTOES ==============================================================================================================
 
-CARTOES_0923 <- get(load("C:\\Users\\Repro\\Documents\\R\\ADM\\CAMPANHAS_REPRO\\2023\\AGO\\CARTOES_0923.RData"))
+CARTOES_1023 <- get(load("C:\\Users\\Repro\\Documents\\R\\ADM\\CAMPANHAS_REPRO\\2023\\AGO\\CARTOES_1023.RData"))
 
 
-CREDITO_CARTOES_VARILUX_0923 <- left_join(PAG_VARILUX_0923 %>%
+CREDITO_CARTOES_VARILUX_1023 <- left_join(PAG_VARILUX_1023 %>%
                                             mutate(CPF=as.character(CPF)),
                                           CARTOES_0823 %>% filter(STATUS!="Cancelado") %>% 
                                             mutate(CPF=sub("\\D+", '',CPF)) %>% 
@@ -1077,50 +1077,50 @@ CREDITO_CARTOES_VARILUX_0923 <- left_join(PAG_VARILUX_0923 %>%
                                             mutate(CPF=sub("\\-", '',CPF)),by="CPF") 
 
 
-View(CREDITO_CARTOES_VARILUX_0923)
+View(CREDITO_CARTOES_VARILUX_1023)
 
 ## EXCLUI SEM CARTAO
 
-CREDITO_CARTOES_VARILUX_0923_2 <- CREDITO_CARTOES_VARILUX_0923 %>% 
+CREDITO_CARTOES_VARILUX_1023_2 <- CREDITO_CARTOES_VARILUX_1023 %>% 
   filter(!is.na(NSERIE)) %>% filter(PGTO_MINIMO=='S')
 
-View(CREDITO_CARTOES_VARILUX_0923_2)
+View(CREDITO_CARTOES_VARILUX_1023_2)
 
 
 ## CRIA BASE DE PAGAMENTO
 
-CREDITO_CARTOES_VARILUX_0923_3 <- CREDITO_CARTOES_VARILUX_0923_2 %>% 
+CREDITO_CARTOES_VARILUX_1023_3 <- CREDITO_CARTOES_VARILUX_1023_2 %>% 
   .[,c(6,1,2,3)] %>% 
   rename_at(1:4, ~ c("Número de Série","CPF","Valor da Carga","Observacao"))
 
 
-View(CREDITO_CARTOES_VARILUX_0923_3)  
+View(CREDITO_CARTOES_VARILUX_1023_3)  
 
-CREDITO_CARTOES_VARILUX_0923_3 %>% summarize(v=sum(`Valor da Carga`))
+CREDITO_CARTOES_VARILUX_1023_3 %>% summarize(v=sum(`Valor da Carga`))
 
-CREDITO_CARTOES_VARILUX_0923_3 %>% .[duplicated(.$CPF),]
+CREDITO_CARTOES_VARILUX_1023_3 %>% .[duplicated(.$CPF),]
 
 
-write.csv2(CREDITO_CARTOES_VARILUX_0923_3,
-           file = "C:\\Users\\Repro\\One Drive Comunicacao\\OneDrive - Luxottica Group S.p.A\\CAMPANHAS ALELO\\2023\\SET\\CREDITO_CARTOES_VARILUX_0923.csv",
+write.csv2(CREDITO_CARTOES_VARILUX_1023_3,
+           file = "C:\\Users\\Repro\\One Drive Comunicacao\\OneDrive - Luxottica Group S.p.A\\CAMPANHAS ALELO\\2023\\SET\\CREDITO_CARTOES_VARILUX_1023.csv",
            row.names=FALSE,quote = FALSE)
 
 
-left_join(CREDITO_CARTOES_0923_2,ALELO_0923 %>% rename(NSERIE=`Número de Série`),by="NSERIE") %>%.[,c(-4,-5,-6,-7,-8,-9)] %>% View()
+left_join(CREDITO_CARTOES_1023_2,ALELO_1023 %>% rename(NSERIE=`Número de Série`),by="NSERIE") %>%.[,c(-4,-5,-6,-7,-8,-9)] %>% View()
 
 
 ## NAO BONIFICADOS ============================================================
 
-NAO_BONIFICADOS_VARILUX_0923 <-
+NAO_BONIFICADOS_VARILUX_1023 <-
   
-  left_join(CREDITO_CARTOES_VARILUX_0923 %>% 
+  left_join(CREDITO_CARTOES_VARILUX_1023 %>% 
               filter(!is.na(NSERIE)) %>% 
               filter(PGTO_MINIMO=='N'),BASE_CPF %>% mutate(CPF=as.character(CPF)),by="CPF") %>% 
   left_join(.,cli %>% select(CLICODIGO,SETOR),by="CLICODIGO") %>% 
   .[,c(12,13,1,2,3)] 
 
 
-range_write("1Fy7pehis2ZCDdy42lF3gVuKmDZhRVSSVF40W8GkKbsI",data =NAO_BONIFICADOS_VARILUX_0923,
+range_write("1Fy7pehis2ZCDdy42lF3gVuKmDZhRVSSVF40W8GkKbsI",data =NAO_BONIFICADOS_VARILUX_1023,
             sheet = "NAO BONIFICADOS",range = "A12")
 
 
@@ -1128,14 +1128,14 @@ range_write("1Fy7pehis2ZCDdy42lF3gVuKmDZhRVSSVF40W8GkKbsI",data =NAO_BONIFICADOS
 
 ## EMISSAO CARTAO ======================================================================================================= 
 
-VARILUX_EMISSAO_CARTOES_0923 <- CREDITO_CARTOES_VARILUX_0923 %>% 
+VARILUX_EMISSAO_CARTOES_1023 <- CREDITO_CARTOES_VARILUX_1023 %>% 
   filter(is.na(NSERIE)) %>% 
   left_join(.,PARTICIPANTES_CAMPANHA %>% 
               mutate(CPF=as.character(CPF)),by="CPF") %>%  .[,c(1:3,11:14)] 
 
-View(VARILUX_EMISSAO_CARTOES_0923)
+View(VARILUX_EMISSAO_CARTOES_1023)
 
 
-range_write("1Fy7pehis2ZCDdy42lF3gVuKmDZhRVSSVF40W8GkKbsI",data =EMISSAO_CARTOES_0923,
+range_write("1Fy7pehis2ZCDdy42lF3gVuKmDZhRVSSVF40W8GkKbsI",data =EMISSAO_CARTOES_1023,
             sheet = "EMISSAO CARTOES",range = "A1")
 
