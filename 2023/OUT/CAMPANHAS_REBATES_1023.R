@@ -420,10 +420,6 @@ REBATE_PAGAMENTO_1023 <- rbind(REBATE_PAGAMENTO_G139_1023,
 View(REBATE_PAGAMENTO_1023)
 
 
-range_write(REBATE_PAGAMENTO_1023,ss="",range = "A1",sheet="RESUMO",reformat = FALSE)  
-
-
-
 ## LISTAGEM  =========================================================================
 
 
@@ -434,10 +430,8 @@ REBATE_LISTAGEM_1023 <- rbind(REBATE_LISTAGEM_G139_1023,
                               REBATE_LISTAGEM_4253_1023
 )
 
+
 View(REBATE_LISTAGEM_1023)
-
-
-range_write(REBATE_LISTAGEM_1023,ss="",range = "A1",sheet="REBATES",reformat = FALSE)  
 
 
 ## CREDITO  =========================================================================
@@ -447,7 +441,7 @@ range_write(REBATE_LISTAGEM_1023,ss="",range = "A1",sheet="REBATES",reformat = F
 
 
 CREDITO_CARTOES_REBATES_1023 <- left_join(REBATE_PAGAMENTO_1023 %>%
-                                            mutate(CPF=as.character(CPF)),CARTOES_0823 %>%  
+                                            mutate(CPF=as.character(CPF)),CARTOES_081123 %>%  
                                             filter(STATUS!="Cancelado") %>% 
                                             mutate(CPF=sub("\\D+", '',CPF)) %>% 
                                             mutate(CPF=sub("\\.", '',CPF)) %>% 
@@ -460,7 +454,7 @@ View(CREDITO_CARTOES_REBATES_1023)
 
 
 CREDITO_CARTOES_REBATES_1023_2 <- CREDITO_CARTOES_REBATES_1023 %>% 
-  filter(!is.na(NSERIE)) %>% filter(!is.na(BONUS)) %>%  filter(PGTO_MINIMO=='S')
+  filter(!is.na(NSERIE)) %>% filter(!is.na(BONUS))
 
 View(CREDITO_CARTOES_REBATES_1023_2)
 
@@ -480,7 +474,7 @@ CREDITO_CARTOES_REBATES_1023_3 %>% .[duplicated(.$CPF),]
 
 
 write.csv2(CREDITO_CARTOES_REBATES_1023_3,
-           file = "C:\\Users\\Repro\\One Drive Comunicacao\\OneDrive - Luxottica Group S.p.A\\CAMPANHAS ALELO\\2023\\SET\\CREDITO_CARTOES_REBATES_1023.csv",
+           file = "C:\\Users\\REPRO SANDRO\\OneDrive - Luxottica Group S.p.A (1)\\CAMPANHAS ALELO\\2023\\OUT\\CREDITO_CARTOES_REBATES_1023.csv",
            row.names=FALSE,quote = FALSE)
 
 

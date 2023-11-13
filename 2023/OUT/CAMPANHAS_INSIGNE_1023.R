@@ -195,9 +195,6 @@ View(PAG_INSIGNE_1023_ALL)
 PAG_INSIGNE_1023_ALL %>% summarize(v=sum(BONUS))
 
 
-range_write(PAG_INSIGNE_1023_ALL,ss="1vnn7_8_PwZwvG8AeTg6Oq1rJosDnl0zNM_yQ6oCweM4",range = "A13",
-            col_names = FALSE,sheet="RESUMO",reformat = FALSE)  
-
 
 ## LISTAGEM FINAL  =============================================================================================================         
 
@@ -206,25 +203,19 @@ LIST_INSIGNE_1023_ALL <-  rbind(
   LIST_INSIGNE_1023_213,
   LIST_INSIGNE_1023_151,
   LIST_INSIGNE_1023_849
-) 
+) %>%  .[,c(-9,-13,-14)] %>% rename(CPF=CPF3)
 
 View(LIST_INSIGNE_1023_ALL)
 
 
-
-
-range_write(LIST_INSIGNE_1023_ALL ,ss="1vnn7_8_PwZwvG8AeTg6Oq1rJosDnl0zNM_yQ6oCweM4",range = "A:P",sheet="INSIGNE",reformat = FALSE)  
-
-
-
-
 ## CREDITO CARTOES ======================================================================================================= 
 
+save(CARTOES_081123,file = "C:\\Users\\REPRO SANDRO\\Documents\\R\\REPRO CAMPANHAS\\2023\\OUT\\CARTOES_081123.RData")
 
-CARTOES_1023 <- get(load("C:\\Users\\Repro\\Documents\\R\\ADM\\CAMPANHAS_REPRO\\2023\\AGO\\CARTOES_1023.RData"))
+CARTOES_081123 <- get(load("C:\\Users\\REPRO SANDRO\\Documents\\R\\REPRO CAMPANHAS\\2023\\OUT\\CARTOES_081123.RData"))
 
 CREDITO_CARTOES_INSIGNE_1023 <- left_join(PAG_INSIGNE_1023_ALL %>%
-                                            mutate(CPF=as.character(CPF)),CARTOES_0823 %>%  
+                                            mutate(CPF=as.character(CPF)),CARTOES_081123 %>%  
                                             filter(STATUS!="Cancelado") %>% 
                                             mutate(CPF=sub("\\D+", '',CPF)) %>% 
                                             mutate(CPF=sub("\\.", '',CPF)) %>% 
@@ -262,7 +253,7 @@ CREDITO_CARTOES_INSIGNE_1023_3 %>% .[duplicated(.$CPF),]
 
 
 write.csv2(CREDITO_CARTOES_INSIGNE_1023_3,
-           file = "C:\\Users\\Repro\\One Drive Comunicacao\\OneDrive - Luxottica Group S.p.A\\CAMPANHAS ALELO\\2023\\SET\\CREDITO_CARTOES_INSIGNE_1023.csv",
+           file = "C:\\Users\\REPRO SANDRO\\OneDrive - Luxottica Group S.p.A (1)\\CAMPANHAS ALELO\\2023\\OUT\\CREDITO_CARTOES_INSIGNE_1023.csv",
            row.names=FALSE,quote = FALSE)
 
 
