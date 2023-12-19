@@ -112,15 +112,13 @@ RESULT_INSIGNE_1123_4 <- RESULT_INSIGNE_1123_3 %>% filter(CLICODIGO!=849)
 
 LIST_INSIGNE_1123 <- left_join(RESULT_INSIGNE_1123_4,BASE_CPF,by="CLICODIGO") %>%
   rename(CPF=CPF.x) %>% rename(CPF2=CPF.y) %>% 
-  mutate(CPF3=ifelse(CPF2=='NULL',CPF,CPF2)) %>%
-  mutate(OBS=OBS_SIG) 
+  mutate(CPF3=ifelse(CPF2=='NULL',CPF,CPF2)) 
 
 
 ## PAY ==================================================================
 
-PAG_INSIGNE_1123 <-  LIST_INSIGNE_1123 %>% filter(nchar(CPF3)==11) %>% group_by(CPF3) %>% 
-  summarize(BONUS=sum(BONUS)) %>% 
-  mutate(OBS=OBS_SIG) %>%  rename(CPF=CPF3)
+PAG_INSIGNE_1123 <-  LIST_INSIGNE_1123 %>% filter(nchar(CPF3)==11) %>% group_by(CPF3,OBS_SIG) %>% 
+  summarize(BONUS=sum(BONUS)) %>%  rename(CPF=CPF3)
 
 
 ## 151 ==================================================================================
@@ -129,15 +127,13 @@ RESULT_INSIGNE_1123_151 <- RESULT_INSIGNE_1123 %>% filter(CLICODIGO==151)
 
 
 LIST_INSIGNE_1123_151 <- left_join(RESULT_INSIGNE_1123_151,BASE_CPF,by="CLICODIGO") %>%
-  rename(CPF=CPF.x) %>% rename(CPF2=CPF.y) %>% 
-  mutate(OBS=OBS_SIG) %>% 
+  rename(CPF=CPF.x) %>% rename(CPF2=CPF.y) %>%
   mutate(CPF3=ifelse(CPF2=='NULL',CPF,CPF2)) %>%  
   mutate(CPF3=ifelse(nchar(gsub("[^[:alnum:]]", "", PEDAUTORIZOU)) < 6,'00773625941',CPF2))
 
 
-PAG_INSIGNE_1123_151 <-  LIST_INSIGNE_1123_151 %>% group_by(CPF3) %>% 
-  summarize(BONUS=sum(BONUS)) %>% 
-  mutate(OBS=OBS_SIG) %>% rename(CPF=CPF3)
+PAG_INSIGNE_1123_151 <-  LIST_INSIGNE_1123_151 %>% group_by(CPF3,OBS_SIG) %>% 
+  summarize(BONUS=sum(BONUS)) %>% rename(CPF=CPF3)
 
 
 ## 213  =============================================================================
@@ -146,12 +142,11 @@ RESULT_INSIGNE_1123_213 <- RESULT_INSIGNE_1123 %>% filter(CLICODIGO==213)
 
 
 LIST_INSIGNE_1123_213 <- left_join(RESULT_INSIGNE_1123_213,BASE_CPF,by="CLICODIGO") %>%
-  rename(CPF=CPF.x) %>% rename(CPF2=CPF.y) %>% 
-  mutate(OBS=OBS_SIG) %>% mutate(CPF3=ifelse(CPF2=='NULL',CPF,CPF2)) 
+  rename(CPF=CPF.x) %>% rename(CPF2=CPF.y) %>% mutate(CPF3=ifelse(CPF2=='NULL',CPF,CPF2)) 
 
-PAG_INSIGNE_1123_213 <-  LIST_INSIGNE_1123_213 %>% group_by(CPF3) %>% 
+PAG_INSIGNE_1123_213 <-  LIST_INSIGNE_1123_213 %>% group_by(CPF3,OBS_SIG) %>% 
   summarize(BONUS=sum(BONUS)/(LIST_INSIGNE_1123_213 %>% distinct(CPF3) %>% lengths())) %>% 
-  mutate(OBS=OBS_SIG) %>% rename(CPF=CPF3)
+  rename(CPF=CPF3)
 
 
 ## 849  =============================================================================
@@ -162,16 +157,14 @@ RESULT_INSIGNE_1123_849 <- RESULT_INSIGNE_1123 %>% filter(CLICODIGO==849)
 ## INTERSECT
 
 LIST_INSIGNE_1123_849 <- left_join(CP_INSIGNE_1123_849,BASE_CPF,by="CLICODIGO") %>%
-  rename(CPF=CPF.x) %>% rename(CPF2=CPF.y) %>% 
-  mutate(OBS=OBS_SIG) %>% mutate(CPF3=ifelse(CPF2=='NULL',CPF,CPF2)) 
+  rename(CPF=CPF.x) %>% rename(CPF2=CPF.y)  %>% mutate(CPF3=ifelse(CPF2=='NULL',CPF,CPF2)) 
 
 LIST_INSIGNE_1123_849 %>%  summarize(BONUS=sum(BONUS))
 
 ## PAY
 
 PAG_INSIGNE_1123_849 <-  LIST_INSIGNE_1123_849 %>% group_by(CPF3) %>% 
-  summarize(BONUS=sum(BONUS)/(LIST_INSIGNE_1123_213 %>% distinct(CPF3) %>% lengths())) %>% 
-  mutate(OBS=OBS_SIG) %>% rename(CPF=CPF3)
+  summarize(BONUS=sum(BONUS)/(LIST_INSIGNE_1123_849%>% distinct(CPF3) %>% lengths())) %>% rename(CPF=CPF3)
 
 
 
@@ -181,10 +174,9 @@ PAG_INSIGNE_1123_849 <-  LIST_INSIGNE_1123_849 %>% group_by(CPF3) %>%
 PAG_INSIGNE_1123_ALL <-  rbind( 
   PAG_INSIGNE_1123,
   PAG_INSIGNE_1123_213,
-  PAG_INSIGNE_1123_151,
-  PAG_INSIGNE_1123_849
+  PAG_INSIGNE_1123_151
 ) %>% mutate(PGTO_MINIMO=if_else(BONUS>=100,"S","N")) %>% 
-  mutate(TIPO="INSIGNE")
+  mutate(TIPO="INSIGNE") %>% rename(OBS=OBS_SIG)
 
 View(PAG_INSIGNE_1123_ALL)
 
@@ -198,9 +190,8 @@ PAG_INSIGNE_1123_ALL %>% summarize(v=sum(BONUS))
 LIST_INSIGNE_1123_ALL <-  rbind( 
   LIST_INSIGNE_1123,
   LIST_INSIGNE_1123_213,
-  LIST_INSIGNE_1123_151,
-  LIST_INSIGNE_1123_849
-) %>%  .[,c(-9,-13,-14)] %>% rename(CPF=CPF3)
+  LIST_INSIGNE_1123_151
+) %>%  .[,c(-12,-16)] %>% rename(CPF=CPF3)
 
 View(LIST_INSIGNE_1123_ALL)
 
@@ -237,7 +228,7 @@ CREDITO_CARTOES_INSIGNE_1123_2 %>% n_distinct(.$CPF)
 ## CRIA BASE DE PAGAMENTO ============================================================
 
 CREDITO_CARTOES_INSIGNE_1123_3 <- CREDITO_CARTOES_INSIGNE_1123_2  %>% 
-  .[,c(6,1,2,3)] %>% 
+  .[,c(6,1,3,2)] %>% 
   rename_at(1:4, ~ c("Número de Série","CPF","Valor da Carga","Observacao"))
 
 

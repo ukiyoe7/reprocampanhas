@@ -36,7 +36,7 @@ CP_G148_VLX_ECONO_1123 %>% summarize(v=sum(VRVENDA))
 CP_G148_VLX_ECONO_1123 %>% summarize(v=sum(BONUS))
 
 
-OBS_G148_VLX_ECONO_1123 <-  paste0("HEUSI G148 VARILUX ECONOMICA ",format(floor_date(Sys.Date(),"month"),"%m%y")) 
+OBS_G148_VLX_ECONO_1123 <-  paste0("HEUSI G148 VARILUX ECONOMICA ",format(floor_date(Sys.Date(),"month") - months(1),"%m%y")) 
 
 ## JOIN CPF
 
@@ -72,7 +72,7 @@ CP_G257_VLX_ECONO_1123 %>% summarize(v=sum(VRVENDA))
 CP_G257_VLX_ECONO_1123 %>% summarize(v=sum(BONUS))
 
 
-OBS_G257_VLX_ECONO_1123 <-  paste0("ZOLET G257 VARILUX ECONOMICA ",format(floor_date(Sys.Date(),"month"),"%m%y")) 
+OBS_G257_VLX_ECONO_1123 <-  paste0("ZOLET G257 VARILUX ECONOMICA ",format(floor_date(Sys.Date(),"month") - months(1),"%m%y")) 
 
 ## JOIN CPF
 
@@ -107,7 +107,7 @@ CP_986_VLX_ECONO_1123 %>% summarize(v=sum(VRVENDA))
 CP_986_VLX_ECONO_1123 %>% summarize(v=sum(BONUS))
 
 
-OBS_986_VLX_ECONO_1123 <-  paste0("OTICA LUZ 986 VARILUX ECONOMICA ",format(floor_date(Sys.Date(),"month"),"%m%y")) 
+OBS_986_VLX_ECONO_1123 <-  paste0("OTICA LUZ 986 VARILUX ECONOMICA ",format(floor_date(Sys.Date(),"month") - months(1),"%m%y")) 
 
 ## JOIN CPF
 
@@ -132,6 +132,7 @@ View(PAG_986_VLX_ECONO_1123)
 CP_1923_VLX_ECONO_1123 <- 
   query_vlx_1123 %>% 
   filter(CLICODIGO==1923) %>% 
+  mutate(PEDAUTORIZOU='') %>% 
   mutate(CPF=sub("\\D+", '',PEDAUTORIZOU)) %>% 
   mutate(CPF=sub("\\.", '',CPF)) %>% 
   mutate(CPF=sub("\\-", '',CPF)) %>% 
@@ -144,7 +145,7 @@ CP_1923_VLX_ECONO_1123 %>% summarize(v=sum(VRVENDA))
 CP_1923_VLX_ECONO_1123 %>% summarize(v=sum(BONUS))
 
 
-OBS_1923_VLX_ECONO_1123 <-  paste0("RELOJOARIA ART JOIAS 1923 VARILUX ECONOMICA ",format(floor_date(Sys.Date(),"month"),"%m%y")) 
+OBS_1923_VLX_ECONO_1123 <-  paste0("RELOJOARIA ART JOIAS 1923 VARILUX ECONOMICA ",format(floor_date(Sys.Date(),"month") - months(1),"%m%y")) 
 
 ## JOIN CPF
 
