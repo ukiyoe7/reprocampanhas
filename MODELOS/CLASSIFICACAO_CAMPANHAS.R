@@ -2,6 +2,8 @@
 ## ATUALIZADO EM 19.06.2024
 ## SANDRO JAKOSKA
 
+## load ====================
+
 library(DBI)
 library(tidyverse)
 library(readr)
@@ -9,7 +11,7 @@ library(openxlsx)
 
 con2 <- dbConnect(odbc::odbc(), "repro",encoding="Latin1")
 
-## Queries
+## Queries =========
 
 pedidos <- dbGetQuery(con2, statement = read_file('MODELOS/PEDIDOS.sql')) %>% mutate(PROCODIGO=trimws(PROCODIGO))
 
@@ -17,12 +19,12 @@ modelos <- dbGetQuery(con2, statement = read_file('MODELOS/MODELOS_CAMPANHAS.sql
 
 promo <- dbGetQuery(con2, statement = read_file('MODELOS/PROMO.sql')) %>% mutate(PROMO=as.integer(PROMO))
 
-## Join campanhas and promo
+## Join campanhas and promo ============
 
 pedidos_2 <-
   left_join(pedidos,promo,by="ID_PEDIDO") %>% mutate(PROMO=if_else(is.na(PROMO),0,PROMO))
 
-## Extract CPF
+## Extract CPF ===========
 
 pedidos_3 <- 
 pedidos_2 %>%  
@@ -30,7 +32,7 @@ pedidos_2 %>%
     mutate(CPF=str_replace_all(CPF, "[\\.\\-]", "")) 
 
 
-## Using Joins to classify
+## Using Joins to classify ===========
 
 classificacao_campanhas <-
   
@@ -47,7 +49,7 @@ View(classificacao_campanhas)
 classificacao_campanhas %>% summarize(v=sum(BONUS,na.rm = TRUE))
 
 
-## summarize
+## summarize campanhas ==========
 
 resumo_campanhas_m1 <-
 classificacao_campanhas %>% 
@@ -64,27 +66,60 @@ resumo_campanhas_setores_m1 <-
   ungroup() %>% 
   bind_rows(summarize(., SETOR = "TOTAL", BONUS = sum(BONUS)))
 
-## write excel
+
+## summarize CPF ==========
+
+resumo_cpf_campanhas <-
+  classificacao_campanhas %>% 
+  filter(!is.na(CAMPANHA)) %>% 
+  group_by(CPF,CAMPANHA) %>% summarize(BONUS=sum(BONUS,na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  arrange(desc(BONUS)) %>% 
+  bind_rows(summarize(., CAMPANHA = "TOTAL", BONUS = sum(BONUS)))  
+  
+
+View(resumo_cpf_campanhas)
+
+
+## write excel ==============
 
 wb_campanhas_m1 <- createWorkbook()
 
-## sheet resumo
+## sheet resumo ==============
 
 addWorksheet(wb_campanhas_m1, "RESUMO")
 
 setColWidths(wb_campanhas_m1, sheet = "RESUMO", cols = 1, widths = 2)
 
-setColWidths(wb_campanhas_m1, sheet = "RESUMO", cols = 2, widths = 20)
+setColWidths(wb_campanhas_m1, sheet = "RESUMO", cols = 2, widths = 40)
 
 estiloNumerico <- createStyle(numFmt = "#,##0")
 
 writeDataTable(wb_campanhas_m1, "RESUMO", resumo_campanhas_m1, startCol = 2, startRow = 4, xy = NULL, colNames = TRUE, rowNames = FALSE, tableStyle = "TableStyleMedium2", tableName = NULL, headerStyle = NULL, withFilter = TRUE, keepNA = FALSE, na.string = NULL, sep = ", ", stack = FALSE, firstColumn = FALSE, lastColumn = FALSE, bandedRows = TRUE, bandedCols = FALSE)
 
-addStyle(wb_campanhas_m1, sheet = "RESUMO", style = estiloNumerico, cols = 3, rows = 1:nrow(resumo_campanhas_m1)+1, gridExpand = TRUE)
+addStyle(wb_campanhas_m1, sheet = "RESUMO", style = estiloNumerico, cols = 3, rows = 1:9, gridExpand = TRUE)
+
+estiloNumerico <- createStyle(numFmt = "#,##0")
+
+writeDataTable(wb_campanhas_m1, "RESUMO", resumo_campanhas_setores_m1, startCol = 2, startRow = 12, xy = NULL, colNames = TRUE, rowNames = FALSE, tableStyle = "TableStyleMedium2", tableName = NULL, headerStyle = NULL, withFilter = TRUE, keepNA = FALSE, na.string = NULL, sep = ", ", stack = FALSE, firstColumn = FALSE, lastColumn = FALSE, bandedRows = TRUE, bandedCols = FALSE)
+
+addStyle(wb_campanhas_m1, sheet = "RESUMO", style = estiloNumerico, cols = 3, rows = 1:9, gridExpand = TRUE)
 
 
+## sheet cpf ==============
 
-## sheet pedidos
+addWorksheet(wb_campanhas_m1, "CPF")
+
+setColWidths(wb_campanhas_m1, sheet = "CPF", cols = 1, widths = 2)
+
+setColWidths(wb_campanhas_m1, sheet = "CPF", cols = 2, widths = 40)
+
+setColWidths(wb_campanhas_m1, sheet = "CPF", cols = 3, widths = 40)
+
+writeDataTable(wb_campanhas_m1, "CPF", resumo_cpf_campanhas, startCol = 2, startRow = 4, xy = NULL, colNames = TRUE, rowNames = FALSE, tableStyle = "TableStyleMedium2", tableName = NULL, headerStyle = NULL, withFilter = TRUE, keepNA = FALSE, na.string = NULL, sep = ", ", stack = FALSE, firstColumn = FALSE, lastColumn = FALSE, bandedRows = TRUE, bandedCols = FALSE)
+
+
+## sheet pedidos =============================
 
 addWorksheet(wb_campanhas_m1, "PEDIDOS")
 
@@ -103,9 +138,11 @@ setColWidths(wb_campanhas_m1, sheet = "PEDIDOS", cols = 12, widths = 35)
 
 setColWidths(wb_campanhas_m1, sheet = "PEDIDOS", cols = 13:16, widths = 12)
 
-setColWidths(wb_campanhas_m1, sheet = "PEDIDOS", cols = 17, widths = 25)
+setColWidths(wb_campanhas_m1, sheet = "PEDIDOS", cols = 17, widths = 10)
 
-setColWidths(wb_campanhas_m1, sheet = "PEDIDOS", cols = 18, widths = 10)
+setColWidths(wb_campanhas_m1, sheet = "PEDIDOS", cols = 18, widths = 15)
+
+setColWidths(wb_campanhas_m1, sheet = "PEDIDOS", cols = 19, widths = 30)
 
 
 datesty <- createStyle(numFmt = "dd/MM/yyyy")

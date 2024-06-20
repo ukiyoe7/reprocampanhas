@@ -9,11 +9,14 @@ WITH CAMPANHAS AS (
     LEFT JOIN PROMO P ON C.ID_PROMO = P.ID_PROMO
     WHERE DESCRICAO LIKE '%ALELO%' OR DESCRICAO LIKE '%INSIGNE%'),
 
--- CTE PRODUTOS                  
+-- CTE PRODUTOS   
+
     PRODUTOS AS (
 
 ------------------ VARILUX ECONOMICA
 
+                  -- EYEZEN
+                  
                   SELECT PROCODIGO,PRODESCRICAO, 20 BONUS,'ALELO VARILUX ECONOMICA' CAMPANHA FROM PRODU WHERE  
                   PRODESCRICAO LIKE '%EYEZEN%' AND 
                   PRODESCRICAO NOT LIKE '%TGEN8%' AND
@@ -32,10 +35,81 @@ WITH CAMPANHAS AS (
                   PROSITUACAO='A'AND 
                   PROCODIGO2 IS NULL UNION
                   
+                  --LIBERTY
+                  
                   SELECT PROCODIGO,PRODESCRICAO, 20 BONUS,'ALELO VARILUX ECONOMICA' CAMPANHA FROM PRODU WHERE  
                   PRODESCRICAO LIKE '%LIBERTY%' AND 
                   PRODESCRICAO NOT LIKE '%TGEN8%' AND
                   PRODESCRICAO NOT LIKE '%TRANS%' AND
+                  LEFT(PROCODIGO,2)='LD' AND
+                  GR1CODIGO<>17 AND 
+                  PROSITUACAO='A'AND 
+                  PROCODIGO2 IS NULL UNION
+                  
+                  SELECT PROCODIGO,PRODESCRICAO, 60 BONUS,'ALELO VARILUX ECONOMICA' CAMPANHA FROM PRODU WHERE
+                  PRODESCRICAO LIKE '%LIBERTY%' AND 
+                  (PRODESCRICAO LIKE '%TGEN8%' OR
+                  PRODESCRICAO LIKE '%TRANS%') AND
+                  LEFT(PROCODIGO,2)='LD' AND
+                  GR1CODIGO<>17 AND 
+                  PROSITUACAO='A'AND 
+                  PROCODIGO2 IS NULL UNION
+
+                  -- COMFORT                 
+
+                  SELECT PROCODIGO,PRODESCRICAO, 40 BONUS,'ALELO VARILUX ECONOMICA' CAMPANHA FROM PRODU WHERE  
+                  PRODESCRICAO LIKE '%COMFORT%' AND 
+                  PRODESCRICAO NOT LIKE '%TGEN8%' AND
+                  PRODESCRICAO NOT LIKE '%TRANS%' AND
+                  LEFT(PROCODIGO,2)='LD' AND
+                  GR1CODIGO<>17 AND 
+                  PROSITUACAO='A'AND 
+                  PROCODIGO2 IS NULL UNION
+
+                  SELECT PROCODIGO,PRODESCRICAO, 100 BONUS,'ALELO VARILUX ECONOMICA' CAMPANHA FROM PRODU WHERE  
+                  PRODESCRICAO LIKE '%COMFORT%' AND 
+                  (PRODESCRICAO LIKE '%TGEN8%' OR
+                  PRODESCRICAO LIKE '%TRANS%') AND
+                  LEFT(PROCODIGO,2)='LD' AND
+                  GR1CODIGO<>17 AND 
+                  PROSITUACAO='A'AND 
+                  PROCODIGO2 IS NULL UNION
+
+                  -- PHYSIO
+
+                  SELECT PROCODIGO,PRODESCRICAO, 50 BONUS,'ALELO VARILUX ECONOMICA' CAMPANHA FROM PRODU WHERE  
+                  PRODESCRICAO LIKE '%PHYSIO%' AND 
+                  PRODESCRICAO NOT LIKE '%TGEN8%' AND
+                  PRODESCRICAO NOT LIKE '%TRANS%' AND
+                  LEFT(PROCODIGO,2)='LD' AND
+                  GR1CODIGO<>17 AND 
+                  PROSITUACAO='A'AND 
+                  PROCODIGO2 IS NULL UNION
+
+                  SELECT PROCODIGO,PRODESCRICAO, 120 BONUS,'ALELO VARILUX ECONOMICA' CAMPANHA FROM PRODU WHERE  
+                  PRODESCRICAO LIKE '%PHYSIO%' AND 
+                  (PRODESCRICAO LIKE '%TGEN8%' OR
+                  PRODESCRICAO LIKE '%TRANS%') AND
+                  LEFT(PROCODIGO,2)='LD' AND
+                  GR1CODIGO<>17 AND 
+                  PROSITUACAO='A'AND 
+                  PROCODIGO2 IS NULL UNION
+
+                  -- VARILUX E
+                  
+                  SELECT PROCODIGO,PRODESCRICAO, 60 BONUS,'ALELO VARILUX ECONOMICA' CAMPANHA FROM PRODU WHERE  
+                  PRODESCRICAO LIKE '%VARILUX E%' AND 
+                  PRODESCRICAO NOT LIKE '%TGEN8%' AND
+                  PRODESCRICAO NOT LIKE '%TRANS%' AND
+                  LEFT(PROCODIGO,2)='LD' AND
+                  GR1CODIGO<>17 AND 
+                  PROSITUACAO='A'AND 
+                  PROCODIGO2 IS NULL UNION
+
+                  SELECT PROCODIGO,PRODESCRICAO, 140 BONUS,'ALELO VARILUX ECONOMICA' CAMPANHA FROM PRODU WHERE 
+                  PRODESCRICAO LIKE '%VARILUX E%' AND 
+                  (PRODESCRICAO LIKE '%TGEN8%' OR
+                  PRODESCRICAO LIKE '%TRANS%') AND
                   LEFT(PROCODIGO,2)='LD' AND
                   GR1CODIGO<>17 AND 
                   PROSITUACAO='A'AND 
@@ -217,12 +291,62 @@ WITH CAMPANHAS AS (
                   PRODESCRICAO LIKE '%FOTO%') AND
                   GR2CODIGO=1 AND 
                   PROSITUACAO='A'AND 
-                  PROCODIGO2 IS NULL
-                  )  
+                  PROCODIGO2 IS NULL UNION 
                   
+------------------ KODAK
+                  -- PRECISE
+
+                  SELECT PROCODIGO,PRODESCRICAO, 10 BONUS,'ALELO KODAK' CAMPANHA FROM PRODU WHERE  
+                  PRODESCRICAO LIKE '%PRECISE%' AND 
+                  PRODESCRICAO NOT LIKE '%TGEN8%' AND
+                  GR2CODIGO=1 AND 
+                  PROSITUACAO='A'AND 
+                  PROCODIGO2 IS NULL UNION
+                  
+                  SELECT PROCODIGO,PRODESCRICAO, 40 BONUS,'ALELO KODAK' CAMPANHA FROM PRODU WHERE  
+                  PRODESCRICAO LIKE '%PRECISE%' AND 
+                  PRODESCRICAO LIKE '%TGEN8%' AND
+                  GR2CODIGO=1 AND 
+                  PROSITUACAO='A'AND 
+                  PROCODIGO2 IS NULL UNION                   
+
+                  -- NETWORK
+
+                  SELECT PROCODIGO, PRODESCRICAO, 15 AS BONUS,'ALELO KODAK' CAMPANHA FROM PRODU WHERE 
+                  PRODESCRICAO LIKE '%NETWORK%' AND 
+                  PRODESCRICAO NOT LIKE '%TGEN8%' AND
+                  GR2CODIGO = 1 AND 
+                  PROSITUACAO = 'A' AND 
+                  PROCODIGO2 IS NULL UNION
+                  
+                  SELECT PROCODIGO,PRODESCRICAO, 50 BONUS,'ALELO KODAK' CAMPANHA FROM PRODU WHERE  
+                  PRODESCRICAO LIKE '%NETWORK%' AND 
+                  PRODESCRICAO LIKE '%TGEN8%' AND
+                  GR2CODIGO=1 AND 
+                  PROSITUACAO='A'AND 
+                  PROCODIGO2 IS NULL UNION                   
+
+                  -- UNIQUE
+
+                  SELECT PROCODIGO, PRODESCRICAO, 25 AS BONUS,'ALELO KODAK' CAMPANHA FROM PRODU WHERE 
+                  PRODESCRICAO LIKE '%UNIQUE%' AND 
+                  PRODESCRICAO NOT LIKE '%TGEN8%' AND
+                  GR2CODIGO = 1 AND 
+                  PROSITUACAO = 'A' AND 
+                  PROCODIGO2 IS NULL UNION
+                  
+                  SELECT PROCODIGO,PRODESCRICAO, 70 BONUS,'ALELO KODAK' CAMPANHA FROM PRODU WHERE  
+                  PRODESCRICAO LIKE '%UNIQUE%' AND 
+                  PRODESCRICAO LIKE '%TGEN8%' AND
+                  GR2CODIGO=1 AND 
+                  PROSITUACAO='A'AND 
+                  PROCODIGO2 IS NULL
+                  )
+                  
+                 
 -- FINAL SELECT   
                   
-SELECT C.CLICODIGO, P.PROCODIGO,P.PRODESCRICAO,'W' PEDORIGEM, 2 QTD, 1 VENDA,P.CAMPANHA, P.BONUS
+SELECT C.CLICODIGO, P.PROCODIGO,P.PRODESCRICAO,'W' PEDORIGEM, 2 QTD, 0 PROMO, 1 VENDA,P.CAMPANHA, P.BONUS
 FROM CAMPANHAS C
 JOIN PRODUTOS P ON C.CAMPANHA = P.CAMPANHA;                  
 
