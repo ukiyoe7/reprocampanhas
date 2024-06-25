@@ -1,6 +1,6 @@
 # Define multiple data frames
 A <- data.frame(ID = "A", X = c(10, 120, 1000, 10000), Y = c(0.01, 0.05, 0.08, 0.1))
-B <- data.frame(ID = "B", X = c(15, 130, 1000, 40000), Y = c(0.03, 0.05, 0.07, 0.2))
+B <- data.frame(ID = "B", X = c(15), Y = c(0.03))
 C <- data.frame(ID = "C", X = c(16, 100, 1010, 20000), Y = c(0.02, 0.05, 0.06, 0.3))
 D <- data.frame(ID = "D", X = c(8, 100, 3000, 10001), Y = c(0.01, 0.05, 0.07, 0.4))
 
