@@ -1,17 +1,7 @@
 -- SQL MODELOS DE CAMPANHAS
--- ULTIMA ATUALIZAÇÃO 13.06.2024
-
 
 -- CTE CAMPANHAS
-WITH CAMPANHAS AS (
-    SELECT CLICODIGO, P.ID_PROMO, DESCRICAO AS CAMPANHA
-    FROM CLIPROMO C
-    LEFT JOIN PROMO P ON C.ID_PROMO = P.ID_PROMO
-    WHERE DESCRICAO LIKE '%ALELO%' OR DESCRICAO LIKE '%INSIGNE%'),
-
--- CTE PRODUTOS   
-
-    PRODUTOS AS (
+WITH PRODUTOS AS (
 
 ------------------ VARILUX ECONOMICA
 
@@ -333,20 +323,23 @@ WITH CAMPANHAS AS (
                   PRODESCRICAO NOT LIKE '%TGEN8%' AND
                   GR2CODIGO = 1 AND 
                   PROSITUACAO = 'A' AND 
-                  PROCODIGO2 IS NULL UNION
+                  PROCODIGO2 IS NULL AND 
+                  MARCODIGO=24
+                  UNION
                   
                   SELECT PROCODIGO,PRODESCRICAO, 70 BONUS,'ALELO KODAK' CAMPANHA FROM PRODU WHERE  
                   PRODESCRICAO LIKE '%UNIQUE%' AND 
                   PRODESCRICAO LIKE '%TGEN8%' AND
                   GR2CODIGO=1 AND 
                   PROSITUACAO='A'AND 
-                  PROCODIGO2 IS NULL
+                  PROCODIGO2 IS NULL AND 
+                  MARCODIGO=24
+            
                   )
                   
                  
 -- FINAL SELECT   
                   
-SELECT C.CLICODIGO, P.PROCODIGO,P.PRODESCRICAO,'W' PEDORIGEM, 2 QTD, 0 PROMO, 1 VENDA,P.CAMPANHA, P.BONUS
-FROM CAMPANHAS C
-JOIN PRODUTOS P ON C.CAMPANHA = P.CAMPANHA;                  
+SELECT CAMPANHA, PROCODIGO, BONUS
+FROM PRODUTOS;                  
 
